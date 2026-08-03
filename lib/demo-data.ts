@@ -1,0 +1,19 @@
+import type { Announcement, Department, NotificationItem, Profile } from "./types";
+export const departments: Department[] = [
+  { id: "d1", name: "تشات الزبائن", color: "#2563eb" }, { id: "d2", name: "تشات المرسلين", color: "#8b5cf6" },
+  { id: "d3", name: "فويس سنتر", color: "#0f9f78" }, { id: "d4", name: "كنترول المرسلين", color: "#f59e0b" },
+  { id: "d5", name: "قسم المنيو", color: "#e85d75" },
+];
+export const demoProfile: Profile = { id:"u1", employee_id:"1001", full_name:"محمد أحمد", email:"employee@company.test", department_id:"d1", department:departments[0], role:"employee", is_active:true, unread_count:3, last_sign_in_at:new Date().toISOString() };
+const now = new Date("2026-08-03T16:00:00+03:00").getTime();
+export const demoAnnouncements: Announcement[] = [
+  { id:"a1", title:"تحديث عاجل على آلية معالجة الطلبات المتأخرة", body:"يرجى الالتزام بالإجراء المحدّث لمعالجة الطلبات المتأخرة، والتأكد من توثيق سبب التأخير قبل تحويل الحالة إلى فريق المتابعة. يبدأ تطبيق الإجراء من الوردية الحالية.", priority:"urgent", status:"published", author_id:"m1", author:{full_name:"أحمد منصور"}, published_at:new Date(now-42*60*1000).toISOString(), is_pinned:true, requires_acknowledgement:true, target_label:"جميع الأقسام", read_count:119, recipient_count:150, is_read:false, attachments:[{id:"at1",announcement_id:"a1",file_name:"إجراء-الطلبات-المتأخرة.pdf",file_url:"#",file_type:"application/pdf",file_size:820000}] },
+  { id:"a2", title:"جدول التدريب الأسبوعي لفريق خدمة الزبائن", body:"تم اعتماد جدول التدريب للأسبوع القادم. يرجى مراجعة الموعد المخصص لك والتنسيق مع مشرف الوردية عند وجود أي تعارض.", priority:"important", status:"published", author_id:"m2", author:{full_name:"سارة خالد"}, published_at:new Date(now-5*60*60*1000).toISOString(), is_pinned:false, requires_acknowledgement:true, target_label:"تشات الزبائن، فويس سنتر", read_count:51, recipient_count:64, is_read:false, attachments:[] },
+  { id:"a3", title:"إرشادات التعامل مع تحديثات المنيو", body:"عند استلام تعديل جديد من المطعم، تأكد من مطابقة الأسعار والصور قبل اعتماد التحديث، ثم أضف ملاحظة واضحة في سجل التعديلات.", priority:"normal", status:"published", author_id:"m1", author:{full_name:"أحمد منصور"}, published_at:new Date(now-26*60*60*1000).toISOString(), is_pinned:false, requires_acknowledgement:false, target_label:"قسم المنيو", read_count:20, recipient_count:23, is_read:true, read_at:new Date(now-20*60*60*1000).toISOString(), is_bookmarked:true, attachments:[] },
+  { id:"a4", title:"تذكير بسياسة استراحة الوردية", body:"الرجاء التنسيق مع المشرف قبل بدء الاستراحة لضمان استمرارية التغطية وعدم تراكم المحادثات.", priority:"normal", status:"published", author_id:"m2", author:{full_name:"سارة خالد"}, published_at:new Date(now-3*86400000).toISOString(), is_pinned:false, requires_acknowledgement:true, target_label:"جميع الأقسام", read_count:142, recipient_count:150, is_read:false, attachments:[] },
+];
+export const demoNotifications: NotificationItem[] = [
+  {id:"n1",title:"تعميم عاجل جديد",body:"تحديث آلية معالجة الطلبات المتأخرة",is_read:false,created_at:new Date(now-40*60*1000).toISOString(),announcement_id:"a1"},
+  {id:"n2",title:"تذكير بالقراءة",body:"لديك تعميم مهم بانتظار التأكيد",is_read:false,created_at:new Date(now-4*60*60*1000).toISOString(),announcement_id:"a2"},
+];
+export const demoEmployees: Profile[] = Array.from({length:12},(_,i)=>({id:`e${i}`,employee_id:String(1001+i),full_name:["محمد أحمد","ليان سمير","رامي عادل","نور الحسن","كرم خالد","آية محمود","عمر سليم","جنى علي","سامر نبيل","ميس أحمد","يزن وائل","دانا فؤاد"][i],email:`staff${i+1}@company.test`,department_id:departments[i%5].id,department:departments[i%5],role:i===0?"manager":i<3?"supervisor":"employee",is_active:i!==10,last_sign_in_at:new Date(now-i*7200000).toISOString(),unread_count:i%4}));
