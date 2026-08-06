@@ -2,7 +2,7 @@
 
 import {
   Bell, Bookmark, CalendarDays, ChartNoAxesCombined, CircleUserRound, ClipboardCheck,
-  ChevronLeft, ChevronRight, FileWarning, Globe2, Home, LogOut, Megaphone, Menu, MessageCircleMore, MessagesSquare, Moon, Search, Settings, Sun, Users, X,
+  ChevronLeft, ChevronRight, FileWarning, Globe2, Home, LogOut, Megaphone, Menu, MessageCircleMore, MessagesSquare, Moon, Search, Settings, Sun, Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -47,7 +47,6 @@ export function AppShell({ children, title, admin = false, action }: { children:
       <aside className={cn("sidebar fixed inset-y-0 z-50 flex w-[304px] flex-col p-4 transition-transform duration-300 lg:translate-x-0", open?"translate-x-0":locale==="ar"?"translate-x-full lg:translate-x-0":"-translate-x-full lg:translate-x-0")} style={locale==="ar"?{right:0,left:"auto"}:{left:0,right:"auto"}}>
         <div className="sidebar-head flex items-center justify-between">
           <Logo />
-          <button className="sidebar-close lg:hidden" onClick={() => setOpen(false)} aria-label="إغلاق"><X size={18} /></button>
         </div>
         <nav className="sidebar-scroll flex-1 overflow-y-auto py-3">
           {groups.map((group) => <section className="sidebar-section" key={group.label}>
