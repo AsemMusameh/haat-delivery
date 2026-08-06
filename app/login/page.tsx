@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useLocale } from "@/components/locale-provider";
-import { TULKARM_OFFICE_IMAGE } from "@/components/tulkarm-office-image";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
 export default function Login() {
@@ -126,7 +125,11 @@ export default function Login() {
   return (
     <main className="login-page" dir="ltr">
       <section className="login-visual" aria-label="مكتب طولكرم بإدارة عبد الله السيد">
-        <img src={TULKARM_OFFICE_IMAGE} alt="مكتب طولكرم بإدارة عبد الله السيد" />
+        <img src="/tulkarm-office.jpg" alt="صورة مكتب طولكرم" />
+        <div className="login-office-caption" dir="rtl">
+          <strong>مكتب طولكرم</strong>
+          <span>بإدارة عبد الله السيد</span>
+        </div>
       </section>
 
       <section className="login-panel" dir={isArabic ? "rtl" : "ltr"}>

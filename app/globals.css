@@ -41,3 +41,7 @@
 .login-visual>img{object-position:center;transform:none}
 @media(max-width:1023px){.login-visual{height:240px}.login-visual>img{object-position:center bottom}.login-panel{min-height:calc(100dvh - 240px)}}
 @media(max-width:520px){.login-visual{height:205px}.login-panel{min-height:calc(100dvh - 205px)}}
+.login-office-caption{position:absolute;z-index:2;right:clamp(24px,4vw,58px);bottom:34px;display:flex;min-width:min(390px,calc(100% - 48px));flex-direction:column;align-items:flex-start;border:1px solid rgba(255,255,255,.55);border-radius:20px;background:linear-gradient(135deg,rgba(116,0,22,.82),rgba(218,23,61,.7));padding:20px 24px;color:#fff;box-shadow:0 18px 45px rgba(72,0,16,.26);text-shadow:0 2px 12px rgba(0,0,0,.22);backdrop-filter:blur(13px)}
+.login-office-caption strong{font-size:clamp(24px,2.4vw,34px);font-weight:950}.login-office-caption span{margin-top:5px;color:#ffe2e8;font-size:14px;font-weight:800}
+@media(max-width:1023px){.login-office-caption{right:18px;bottom:18px;min-width:0;width:auto;border-radius:15px;padding:11px 16px}.login-office-caption strong{font-size:20px}.login-office-caption span{margin-top:2px;font-size:11px}}
+@media(max-width:520px){.login-office-caption{right:12px;bottom:12px;padding:9px 13px}.login-office-caption strong{font-size:17px}.login-office-caption span{font-size:10px}}
