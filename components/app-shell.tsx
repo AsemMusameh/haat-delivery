@@ -11,6 +11,7 @@ import { demoNotifications } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
 import { useLocale } from "./locale-provider";
 import { Logo } from "./logo";
+import { CelebrationStrip } from "./celebration-strip";
 import { useTheme } from "./theme-provider";
 
 export function AppShell({ children, title, admin = false, action }: { children: React.ReactNode; title: string; admin?: boolean; action?: React.ReactNode }) {
@@ -87,6 +88,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
         </div>
       </header>
 
+      <CelebrationStrip />
       <main className="w-full p-4 sm:p-8">{children}</main>
       <nav className="mobile-dock fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 px-1 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 lg:hidden">
         {employeeNav.slice(0, 5).map(({ href, label, icon: Icon }) => <Link key={href} href={href} className={cn("flex flex-col items-center gap-1 text-[9px] text-[var(--muted)]", path === href && "font-bold text-[var(--primary)]")}><Icon size={19} />{label}</Link>)}

@@ -271,6 +271,10 @@ function Dialog({ spec, employee, departments, close }: { spec: string; employee
               required
             />
             {type === "add" && <input name="password" className="input" type="password" placeholder="كلمة مرور مؤقتة (اختياري)" />}
+            <div className="grid grid-cols-2 gap-3">
+              <label className="text-[11px] font-bold text-[var(--muted)]">تاريخ الميلاد<input name="birth_date" className="input mt-1.5" type="date" defaultValue={employee?.birth_date || ""} /></label>
+              <label className="text-[11px] font-bold text-[var(--muted)]">تاريخ الانضمام<input name="hire_date" className="input mt-1.5" type="date" defaultValue={employee?.hire_date || ""} /></label>
+            </div>
             <select name="department_id" className="input" defaultValue={employee?.department_id || ""} required>
               <option value="">اختر القسم</option>
               {departments.map((d) => (

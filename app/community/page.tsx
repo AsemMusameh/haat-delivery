@@ -51,6 +51,8 @@ export default function Community(){
  const[drafts,setDrafts]=useState<Record<string,string>>({});const[replying,setReplying]=useState<ReplyTarget>();
  const[currentUser,setCurrentUser]=useState({id:"",name:ar?"محمد أحمد":"Mohammad Ahmad",role:ar?"موظف HAAT":"HAAT Employee",avatar:""});
 
+ useEffect(()=>{const timer=window.setTimeout(()=>{const message=new URLSearchParams(window.location.search).get("celebrate");if(message)setBody(message)},0);return()=>window.clearTimeout(timer)},[]);
+
  useEffect(()=>{setCurrentUser(user=>({...user,name:ar?"محمد أحمد":"Mohammad Ahmad",role:ar?"موظف HAAT":"HAAT Employee"}))},[ar]);
  useEffect(()=>{if(!isSupabaseConfigured)return;const s=createClient()!;(async()=>{
   const{data:{user}}=await s.auth.getUser();
