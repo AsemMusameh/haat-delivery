@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Bell, Bookmark, CalendarDays, ChartNoAxesCombined, CircleUserRound, ClipboardCheck,
+  Bell, Bookmark, CalendarDays, ChartNoAxesCombined, CircleDollarSign, CircleUserRound, ClipboardCheck,
   ChevronLeft, ChevronRight, FileWarning, Globe2, Home, LogOut, Megaphone, Menu, MessageCircleMore, MessagesSquare, Moon, Search, Settings, Sun, Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -22,6 +22,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
   const employeeNav = [
     { href: "/dashboard", label: t.home, icon: Home },
     { href: "/announcements", label: t.announcements, icon: Megaphone },
+    { href: "/compensations", label: locale==="ar"?"التعويضات":"Compensations", icon: CircleDollarSign },
     { href: "/community", label: locale==="ar"?"مجتمع الشركة":"Company Feed", icon: MessagesSquare },
     { href: "/messages", label: locale==="ar"?"الرسائل":"Messages", icon: MessageCircleMore },
     { href: "/schedule", label: t.schedule, icon: CalendarDays },
@@ -37,11 +38,12 @@ export function AppShell({ children, title, admin = false, action }: { children:
     { href: "/admin/reports", label: t.reports, icon: ChartNoAxesCombined },
     { href: "/admin/employees", label: t.employees, icon: Users },
     { href: "/admin/records", label: t.records, icon: FileWarning },
+    { href: "/admin/compensations", label: locale==="ar"?"إدارة التعويضات":"Compensation Policy", icon: CircleDollarSign },
     { href: "/admin/settings", label: t.settings, icon: Settings },
   ];
   const groups = admin
-    ? [{ label: locale === "ar" ? "الإدارة" : "Management", items: adminNav }, { label: locale === "ar" ? "مساحة الموظف" : "Employee space", items: employeeNav.slice(0, 5) }]
-    : [{ label: locale === "ar" ? "مساحة العمل" : "Workspace", items: employeeNav.slice(0, 5) }, { label: locale === "ar" ? "متابعتي" : "My activity", items: employeeNav.slice(5) }];
+    ? [{ label: locale === "ar" ? "الإدارة" : "Management", items: adminNav }, { label: locale === "ar" ? "مساحة الموظف" : "Employee space", items: employeeNav.slice(0, 6) }]
+    : [{ label: locale === "ar" ? "مساحة العمل" : "Workspace", items: employeeNav.slice(0, 6) }, { label: locale === "ar" ? "متابعتي" : "My activity", items: employeeNav.slice(6) }];
 
   return (
     <div className="app-shell min-h-screen" data-locale={locale}>
