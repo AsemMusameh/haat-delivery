@@ -2,7 +2,7 @@
 
 import {
   Bell, Bookmark, CalendarDays, ChartNoAxesCombined, CircleDollarSign, CircleUserRound, ClipboardCheck,
-  ChevronLeft, ChevronRight, FileWarning, Globe2, Home, LogOut, Megaphone, Menu, MessageCircleMore, MessagesSquare, Moon, Search, Settings, Sun, Users,
+  ChevronLeft, ChevronRight, FileWarning, Globe2, Home, LogOut, Megaphone, Menu, MessageCircleMore, MessagesSquare, Moon, Search, Settings, Sun, Users, UtensilsCrossed,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -23,6 +23,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
     { href: "/dashboard", label: t.home, icon: Home },
     { href: "/announcements", label: t.announcements, icon: Megaphone },
     { href: "/compensations", label: locale==="ar"?"التعويضات":"Compensations", icon: CircleDollarSign },
+    { href: "/restaurants", label: locale==="ar"?"التواصل مع المطاعم":"Restaurant Contacts", icon: UtensilsCrossed },
     { href: "/community", label: locale==="ar"?"مجتمع الشركة":"Company Feed", icon: MessagesSquare },
     { href: "/messages", label: locale==="ar"?"الرسائل":"Messages", icon: MessageCircleMore },
     { href: "/schedule", label: t.schedule, icon: CalendarDays },
