@@ -8,7 +8,7 @@ import { demoEmployees } from "@/lib/demo-data";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
 type ChatMessage={id:string;mine:boolean;body:string;time:string};
-const seed:ChatMessage[]=[{id:"m1",mine:false,body:"مرحباً محمد، هل اطلعت على تحديث سياسة خدمة العملاء؟",time:"10:24"},{id:"m2",mine:true,body:"نعم، قرأته وتم تأكيد الاطلاع. شكراً للتذكير.",time:"10:27"}];
+const seed:ChatMessage[]=[{id:"m1",mine:false,body:"مرحباً محمد، هل اطلعت على تحديث سياسة خدمة الزبائن؟",time:"10:24"},{id:"m2",mine:true,body:"نعم، قرأته وتم تأكيد الاطلاع. شكراً للتذكير.",time:"10:27"}];
 
 export default function Messages(){
  const{locale}=useLocale();const ar=locale==="ar";const[active,setActive]=useState(demoEmployees[1]);const[messages,setMessages]=useState(seed);const[text,setText]=useState("");const[query,setQuery]=useState("");

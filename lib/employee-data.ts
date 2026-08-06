@@ -17,6 +17,5 @@ export const mockPerformance:PerformanceMetric[]=[
 export const mockReviews:EmployeeReview[]=[
  {id:"r1",date:"2026-07-28",reviewer:"سارة خالد",workType:"Customer Chat",overall:92,quality:94,productivity:89,communication:93,compliance:96,attendance:97,cases:42,errors:2,strengths:"سرعة الاستجابة، وضوح التواصل، الالتزام بالسياسة",improvement:"تقليل وقت ما بعد المحادثة",acknowledged:true},
  {id:"r2",date:"2026-06-25",reviewer:"رامي منصور",workType:"Customer Chat",overall:87,quality:88,productivity:84,communication:90,compliance:91,attendance:94,cases:38,errors:4,strengths:"التعامل مع الحالات المعقدة",improvement:"توثيق تفاصيل التحويل",acknowledged:true},
- {id:"r3",date:"2026-05-22",reviewer:"سارة خالد",workType:"Customer Chat",overall:84,quality:85,productivity:82,communication:86,compliance:88,attendance:93,cases:36,errors:5,strengths:"رضا العملاء",improvement:"مراجعة سياسة Coupons",acknowledged:false},
+ {id:"r3",date:"2026-05-22",reviewer:"سارة خالد",workType:"Customer Chat",overall:84,quality:85,productivity:82,communication:86,compliance:88,attendance:93,cases:36,errors:5,strengths:"رضا الزبائن",improvement:"مراجعة سياسة Coupons",acknowledged:false},
 ];
-

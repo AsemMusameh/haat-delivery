@@ -43,14 +43,14 @@ export interface CompensationRule {
 
 export const compensationSituations: CompensationSituation[] = [
   { id:"late_order", category:"delay", ar:"طلب متأخر", en:"Late order", descriptionAr:"الطلب وصل متأخرًا مع بقاء جودة الأصناف مقبولة.", descriptionEn:"The order arrived late while item quality remained acceptable.", usesDelay:true },
-  { id:"cancel_due_delay", category:"delay", ar:"إلغاء بسبب التأخير", en:"Cancellation due to delay", descriptionAr:"العميل يطلب إلغاء الطلب بسبب مدة التأخير.", descriptionEn:"The customer requests cancellation because of the delay.", usesDelay:true },
+  { id:"cancel_due_delay", category:"delay", ar:"إلغاء بسبب التأخير", en:"Cancellation due to delay", descriptionAr:"الزبون يطلب إلغاء الطلب بسبب مدة التأخير.", descriptionEn:"The customer requests cancellation because of the delay.", usesDelay:true },
   { id:"cold_no_delay", category:"quality", ar:"طلب بارد دون تأخير", en:"Cold order without delay", descriptionAr:"الطلب بارد بسبب الشريك دون وجود تأخير بالتوصيل.", descriptionEn:"The order is cold due to the partner, without delivery delay.", usesDelay:false },
   { id:"cold_with_delay", category:"quality", ar:"طلب بارد مع تأخير", en:"Cold order with delay", descriptionAr:"الطلب وصل باردًا مع تسجيل تأخير بالتوصيل.", descriptionEn:"The order arrived cold with a recorded delay.", usesDelay:true },
   { id:"missing_main", category:"missing", ar:"نقص وجبة رئيسية", en:"Missing main meal", descriptionAr:"وجبة رئيسية كاملة غير موجودة في الطلب.", descriptionEn:"A complete main meal is missing from the order.", usesDelay:false },
   { id:"missing_side", category:"missing", ar:"نقص صنف جانبي", en:"Missing side item", descriptionAr:"صنف جانبي أو إضافة مدفوعة غير موجودة.", descriptionEn:"A side item or paid add-on is missing.", usesDelay:false },
   { id:"damaged_main", category:"damaged", ar:"وجبة رئيسية متضررة", en:"Damaged main meal", descriptionAr:"الوجبة الرئيسية انسكبت أو وصلت بحالة غير صالحة.", descriptionEn:"The main meal spilled or arrived unusable.", usesDelay:false },
   { id:"damaged_side", category:"damaged", ar:"صنف جانبي متضرر", en:"Damaged side item", descriptionAr:"صنف جانبي وصل منسكبًا أو متضررًا.", descriptionEn:"A side item arrived spilled or damaged.", usesDelay:false },
-  { id:"mix_up", category:"damaged", ar:"تبديل كامل بالطلب", en:"Order mix-up", descriptionAr:"العميل استلم طلب عميل آخر أو طلبًا مختلفًا بالكامل.", descriptionEn:"The customer received someone else's or a fully different order.", usesDelay:false },
+  { id:"mix_up", category:"damaged", ar:"تبديل كامل بالطلب", en:"Order mix-up", descriptionAr:"الزبون استلم طلب زبون آخر أو طلبًا مختلفًا بالكامل.", descriptionEn:"The customer received someone else's or a fully different order.", usesDelay:false },
   { id:"wrong_main", category:"damaged", ar:"وجبة رئيسية خاطئة", en:"Wrong main meal", descriptionAr:"تم إرسال وجبة رئيسية مختلفة عن المطلوبة.", descriptionEn:"A different main meal was sent.", usesDelay:false },
   { id:"wrong_side", category:"damaged", ar:"صنف جانبي خاطئ", en:"Wrong side item", descriptionAr:"تم إرسال صنف جانبي مختلف عن المطلوب.", descriptionEn:"A different side item was sent.", usesDelay:false },
 ];
@@ -108,7 +108,7 @@ export const defaultCompensationRules: CompensationRule[] = [
   rule("wrong-main-1","wrong_main",null,null,"yes","yes","remake_df","remake_df","na","photo","",390),
   rule("wrong-main-2","wrong_main",null,null,"yes","no","item","item","na","photo","",400),
   rule("wrong-main-3","wrong_main",null,null,"no","yes","item_df","item_df","na","photo","",410),
-  rule("wrong-side-1","wrong_side",null,null,"yes","yes","remake","remake","na","photo","يلزم إرفاق صورة. راجع ملف العميل إذا كان لديه 5 طلبات أو أكثر.",420),
+  rule("wrong-side-1","wrong_side",null,null,"yes","yes","remake","remake","na","photo","يلزم إرفاق صورة. راجع ملف الزبون إذا كان لديه 5 طلبات أو أكثر.",420),
   rule("wrong-side-2","wrong_side",null,null,"yes","no","item","item","na","photo","يلزم إرفاق صورة. قيمة القسيمة بين 10 و300 شيكل.",430),
   rule("wrong-side-3","wrong_side",null,null,"no","yes","item","item","na","photo","يلزم إرفاق صورة. قيمة القسيمة بين 10 و300 شيكل.",440),
 ];
@@ -129,7 +129,7 @@ export function compensationLabel(code: CompensationCode, ar = true) {
 }
 
 export function requirementLabel(code: CustomerRequirement, ar = true) {
-  return ({ nothing:["لا شيء","Nothing"], photo:["صورة واضحة من العميل","A clear customer photo"], return_order:["إعادة الطلب للمندوب","Return order to courier"] } as const)[code][ar ? 0 : 1];
+  return ({ nothing:["لا شيء","Nothing"], photo:["صورة واضحة من الزبون","A clear customer photo"], return_order:["إعادة الطلب للمندوب","Return order to courier"] } as const)[code][ar ? 0 : 1];
 }
 
 export function triStateLabel(value: TriState, ar = true) {
