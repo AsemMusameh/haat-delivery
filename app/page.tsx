@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, CalendarDays, ChevronLeft, Globe2, Newspaper, ShieldCheck, Sparkles, Users } from "lucide-react";
 
@@ -13,7 +12,7 @@ export default function Home() {
     <main className="public-home" dir="rtl">
       <header className="public-header">
         <div className="public-container public-nav">
-          <Link href="/" className="public-logo" aria-label="HAAT الصفحة الرئيسية"><Image src="/haat-logo.png" alt="HAAT" width={106} height={52} priority /></Link>
+          <Link href="/" className="public-logo" aria-label="HAAT الصفحة الرئيسية"><img src="/haat-logo.png" alt="HAAT" width="106" height="52" /></Link>
           <nav aria-label="التنقل الرئيسي">
             <a href="#news">الأخبار</a><a href="#about">عن HAAT</a><a href="#numbers">أرقامنا</a>
           </nav>
@@ -48,7 +47,7 @@ export default function Home() {
 
       <section id="about" className="public-cta public-container"><div><span>لأعضاء فريق HAAT</span><h2>كل أدواتك ومعلوماتك في مكان واحد</h2><p>ادخل إلى منصة الموظفين لمتابعة الإعلانات، الأداء، الجدول، والملف الشخصي.</p></div><Link href="/login">الدخول إلى المنصة <ArrowLeft size={18} /></Link></section>
 
-      <footer className="public-footer"><div className="public-container"><Image src="/haat-logo.png" alt="HAAT" width={90} height={45} /><p>© 2026 HAAT. معًا، نقرّب كل شيء.</p><Link href="/login">دخول الموظفين</Link></div></footer>
+      <footer className="public-footer"><div className="public-container"><img src="/haat-logo.png" alt="HAAT" width="90" height="45" /><p>© 2026 HAAT. معًا، نقرّب كل شيء.</p><Link href="/login">دخول الموظفين</Link></div></footer>
     </main>
   );
 }
