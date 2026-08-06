@@ -2,7 +2,7 @@
 
 import {
   Bell, Bookmark, CalendarDays, ChartNoAxesCombined, CircleUserRound, ClipboardCheck,
-  FileWarning, Globe2, Home, LogOut, Megaphone, Menu, MessageCircleMore, MessagesSquare, Moon, Search, Settings, Sun, Users, X,
+  ChevronLeft, ChevronRight, FileWarning, Globe2, Home, LogOut, Megaphone, Menu, MessageCircleMore, MessagesSquare, Moon, Search, Settings, Sun, Users, X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -38,30 +38,40 @@ export function AppShell({ children, title, admin = false, action }: { children:
     { href: "/admin/records", label: t.records, icon: FileWarning },
     { href: "/admin/settings", label: t.settings, icon: Settings },
   ];
-  const nav = admin ? [...adminNav, ...employeeNav.slice(0, 5)] : employeeNav;
+  const groups = admin
+    ? [{ label: locale === "ar" ? "الإدارة" : "Management", items: adminNav }, { label: locale === "ar" ? "مساحة الموظف" : "Employee space", items: employeeNav.slice(0, 5) }]
+    : [{ label: locale === "ar" ? "مساحة العمل" : "Workspace", items: employeeNav.slice(0, 5) }, { label: locale === "ar" ? "متابعتي" : "My activity", items: employeeNav.slice(5) }];
 
   return (
     <div className="app-shell min-h-screen" data-locale={locale}>
-      <aside className={cn("sidebar fixed inset-y-0 z-50 w-[288px] p-5 transition-transform lg:translate-x-0", open?"translate-x-0":locale==="ar"?"translate-x-full lg:translate-x-0":"-translate-x-full lg:translate-x-0")} style={locale==="ar"?{right:0,left:"auto"}:{left:0,right:"auto"}}>
-        <div className="mb-7 flex items-center justify-between text-white">
+      <aside className={cn("sidebar fixed inset-y-0 z-50 flex w-[304px] flex-col p-4 transition-transform duration-300 lg:translate-x-0", open?"translate-x-0":locale==="ar"?"translate-x-full lg:translate-x-0":"-translate-x-full lg:translate-x-0")} style={locale==="ar"?{right:0,left:"auto"}:{left:0,right:"auto"}}>
+        <div className="sidebar-head flex items-center justify-between">
           <Logo />
-          <button className="lg:hidden" onClick={() => setOpen(false)} aria-label="إغلاق"><X /></button>
+          <button className="sidebar-close lg:hidden" onClick={() => setOpen(false)} aria-label="إغلاق"><X size={18} /></button>
         </div>
-        <nav className="max-h-[calc(100vh-92px)] space-y-1 overflow-y-auto pb-40">
-          {nav.map(({ href, label, icon: Icon }) => (
-            <Link key={href} href={href} onClick={() => setOpen(false)} className={cn("sidebar-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold", (path === href || path.startsWith(href + "/")) && "active")}>
-              <Icon size={19} />
-              <span className="truncate">{label}</span>
-              {href === "/notifications" && <span className="mr-auto rounded-full bg-[#f5c629] px-2 py-0.5 text-[10px] font-black text-[#6f0014]">{demoNotifications.filter((notification) => !notification.is_read).length}</span>}
-            </Link>
-          ))}
+        <nav className="sidebar-scroll flex-1 overflow-y-auto py-3">
+          {groups.map((group) => <section className="sidebar-section" key={group.label}>
+            <p className="sidebar-section-label">{group.label}</p>
+            <div className="space-y-1">
+              {group.items.map(({ href, label, icon: Icon }) => {
+                const active = path === href || path.startsWith(href + "/");
+                return <Link key={href} href={href} onClick={() => setOpen(false)} className={cn("sidebar-link group flex items-center gap-3", active && "active")}>
+                  <span className="sidebar-icon"><Icon size={18} /></span>
+                  <span className="min-w-0 flex-1 truncate">{label}</span>
+                  {href === "/notifications" && <span className="sidebar-badge">{demoNotifications.filter((notification) => !notification.is_read).length}</span>}
+                  {active && (locale === "ar" ? <ChevronLeft className="sidebar-chevron" size={15} /> : <ChevronRight className="sidebar-chevron" size={15} />)}
+                </Link>;
+              })}
+            </div>
+          </section>)}
         </nav>
-        <div className="absolute inset-x-5 bottom-5 border-t border-white/20 pt-4">
-          <Link href="/profile" className="mb-3 flex items-center gap-3 rounded-xl bg-white/10 p-3 text-white">
-            <span className="grid size-9 place-items-center rounded-full border border-white/35 bg-white/15 font-bold text-white">أ</span>
-            <div className="min-w-0"><b className="block truncate text-xs">{locale === "ar" ? "أحمد محمد" : "Ahmad Mohammad"}</b><span className="text-[10px] text-rose-100">Customer Chat</span></div>
+        <div className="sidebar-footer">
+          <Link href="/profile" className="sidebar-user">
+            <span className="sidebar-avatar">أ<i /></span>
+            <div className="min-w-0 flex-1"><b className="block truncate text-xs">{locale === "ar" ? "أحمد محمد" : "Ahmad Mohammad"}</b><span className="mt-0.5 block truncate text-[10px]">Customer Chat</span></div>
+            {locale === "ar" ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
           </Link>
-          <Link href="/login" className="flex items-center gap-2 px-3 text-xs font-bold text-rose-100"><LogOut size={16} />{t.logout}</Link>
+          <Link href="/login" className="sidebar-logout"><LogOut size={16} /><span>{t.logout}</span></Link>
         </div>
       </aside>
 
@@ -79,7 +89,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
       </header>
 
       <main className="w-full p-4 sm:p-8">{children}</main>
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[var(--line)] bg-[var(--surface)] px-1 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 lg:hidden">
+      <nav className="mobile-dock fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 px-1 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 lg:hidden">
         {employeeNav.slice(0, 5).map(({ href, label, icon: Icon }) => <Link key={href} href={href} className={cn("flex flex-col items-center gap-1 text-[9px] text-[var(--muted)]", path === href && "font-bold text-[var(--primary)]")}><Icon size={19} />{label}</Link>)}
       </nav>
     </div>
