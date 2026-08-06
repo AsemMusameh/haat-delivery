@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { useLocale } from "@/components/locale-provider";
 import {
-  compensationAmount, compensationLabel, compensationSituations, defaultCompensationRules,
+  compensationAmount, compensationLabel, compensationSituations, couponPolicy, defaultCompensationRules,
   delayLabel, findCompensationRule, requirementLabel, situationById, triStateLabel,
   type CompensationCategory, type CompensationRule, type TriState,
 } from "@/lib/compensation-policy";
@@ -94,7 +94,7 @@ export default function CompensationsPage() {
   };
 
   const resultText = matched
-    ? `${selectedSituation.ar}: ${compensationLabel(matched.compensation_min,true)}${matched.compensation_min === matched.compensation_max ? "" : ` – ${compensationLabel(matched.compensation_max,true)}`}. المطلوب: ${requirementLabel(matched.required_from_customer,true)}.`
+    ? `${selectedSituation.ar}: ${compensationLabel(matched.compensation_min,true)}${matched.compensation_min === matched.compensation_max ? "" : ` – ${compensationLabel(matched.compensation_max,true)}`}. المطلوب: ${requirementLabel(matched.required_from_customer,true)}. القسيمة من ${couponPolicy.minimum} إلى ${couponPolicy.maximum} شيكل، ويُراجع ملف العميل عند وجود ${couponPolicy.profileOrderThreshold} طلبات أو أكثر.`
     : "";
   const copyResult = async () => {
     if (!resultText) return;
@@ -137,7 +137,18 @@ export default function CompensationsPage() {
           <div className="smart-result-badge"><CheckCircle2 size={18}/>{ar?"وجدنا القاعدة المناسبة":"Matching rule found"}</div>
           <div className="smart-result-icon"><CircleDollarSign size={31}/></div>
           <span>{ar?"التعويض المقترح":"Recommended compensation"}</span><strong>{range()}</strong>
-          {matched&&<><div className="smart-result-summary"><p><small>{ar?"الحالة":"Case"}</small><b>{ar?selectedSituation.ar:selectedSituation.en}</b></p>{selectedSituation.usesDelay&&<p><small>{ar?"التأخير":"Delay"}</small><b>{delayLabel(matched,ar)}</b></p>}</div><div className="smart-range"><span><small>{ar?"من":"MIN"}</small><b>{compensationLabel(matched.compensation_min,ar)}</b></span><i/><span><small>{ar?"إلى":"MAX"}</small><b>{compensationLabel(matched.compensation_max,ar)}</b></span></div><p className={`smart-requirement ${matched.required_from_customer}`}>{matched.required_from_customer==="photo"?<Camera size={18}/>:matched.required_from_customer==="return_order"?<Truck size={18}/>:<CheckCircle2 size={18}/>}<span><small>{ar?"المطلوب من العميل":"Required from customer"}</small><b>{requirementLabel(matched.required_from_customer,ar)}</b></span></p>{matched.profile_condition==="refund_ratio"&&<div className="smart-profile-note"><Info size={15}/>{ar?"تحقق من نسبة التعويضات السابقة في ملف العميل قبل الاعتماد.":"Check the customer's previous refund ratio before approval."}</div>}<button type="button" onClick={copyResult}><ClipboardCopy size={16}/>{ar?"نسخ التوصية":"Copy recommendation"}</button></>}
+          {matched&&<>
+            <div className="smart-result-summary"><p><small>{ar?"الحالة":"Case"}</small><b>{ar?selectedSituation.ar:selectedSituation.en}</b></p>{selectedSituation.usesDelay&&<p><small>{ar?"التأخير":"Delay"}</small><b>{delayLabel(matched,ar)}</b></p>}</div>
+            <div className="smart-range"><span><small>{ar?"من":"MIN"}</small><b>{compensationLabel(matched.compensation_min,ar)}</b></span><i/><span><small>{ar?"إلى":"MAX"}</small><b>{compensationLabel(matched.compensation_max,ar)}</b></span></div>
+            <p className={`smart-requirement ${matched.required_from_customer}`}>{matched.required_from_customer==="photo"?<Camera size={18}/>:matched.required_from_customer==="return_order"?<Truck size={18}/>:<CheckCircle2 size={18}/>}<span><small>{ar?"المطلوب من العميل":"Required from customer"}</small><b>{requirementLabel(matched.required_from_customer,ar)}</b></span></p>
+            {matched.profile_condition==="refund_ratio"&&<div className="smart-profile-note"><Info size={15}/>{ar?"تحقق من نسبة التعويضات السابقة في ملف العميل قبل الاعتماد.":"Check the customer's previous refund ratio before approval."}</div>}
+            <div className="coupon-policy-card">
+              <div><ShieldCheck size={16}/><b>{ar?"ضوابط القسيمة":"Coupon controls"}</b></div>
+              <ul><li><strong>{couponPolicy.minimum} ₪</strong><span>{ar?"الحد الأدنى":"Minimum"}</span></li><li><strong>{couponPolicy.maximum} ₪</strong><span>{ar?"الحد الأعلى":"Maximum"}</span></li></ul>
+              <p><Info size={14}/>{ar?`راجع ملف العميل إذا كان لديه ${couponPolicy.profileOrderThreshold} طلبات أو أكثر.`:`Review the customer profile when they have ${couponPolicy.profileOrderThreshold} orders or more.`}</p>
+            </div>
+            <button type="button" onClick={copyResult}><ClipboardCopy size={16}/>{ar?"نسخ التوصية":"Copy recommendation"}</button>
+          </>}
         </aside>
       </div>
     </section>

@@ -9,6 +9,12 @@ export type CompensationCode =
   | "remake" | "remake_df" | "remake_df150" | "remake_40" | "remake_80"
   | "item" | "item_df" | "item_50" | "total_df" | "total_50";
 
+export const couponPolicy = {
+  minimum: 10,
+  maximum: 300,
+  profileOrderThreshold: 5,
+} as const;
+
 export interface CompensationSituation {
   id: string;
   category: CompensationCategory;
@@ -102,9 +108,9 @@ export const defaultCompensationRules: CompensationRule[] = [
   rule("wrong-main-1","wrong_main",null,null,"yes","yes","remake_df","remake_df","na","photo","",390),
   rule("wrong-main-2","wrong_main",null,null,"yes","no","item","item","na","photo","",400),
   rule("wrong-main-3","wrong_main",null,null,"no","yes","item_df","item_df","na","photo","",410),
-  rule("wrong-side-1","wrong_side",null,null,"yes","yes","remake","remake","na","photo","",420),
-  rule("wrong-side-2","wrong_side",null,null,"yes","no","item","item","na","photo","",430),
-  rule("wrong-side-3","wrong_side",null,null,"no","yes","item_df","item_df","na","photo","",440),
+  rule("wrong-side-1","wrong_side",null,null,"yes","yes","remake","remake","na","photo","يلزم إرفاق صورة. راجع ملف العميل إذا كان لديه 5 طلبات أو أكثر.",420),
+  rule("wrong-side-2","wrong_side",null,null,"yes","no","item","item","na","photo","يلزم إرفاق صورة. قيمة القسيمة بين 10 و300 شيكل.",430),
+  rule("wrong-side-3","wrong_side",null,null,"no","yes","item","item","na","photo","يلزم إرفاق صورة. قيمة القسيمة بين 10 و300 شيكل.",440),
 ];
 
 export const compensationOptions: CompensationCode[] = ["zero","df","df150","df200","order30","order40","order50","order80","order100","fixed40","fixed50","fixed70","fixed80","fixed100","remake","remake_df","remake_df150","remake_40","remake_80","item","item_df","item_50","total_df","total_50"];
@@ -150,5 +156,7 @@ export function compensationAmount(code: CompensationCode, orderTotal: number, d
     fixed40:40, fixed50:50, fixed70:70, fixed80:80, fixed100:100,
     item:itemValue, item_df:itemValue+deliveryFee, item_50:itemValue+50, total_df:orderTotal+deliveryFee, total_50:orderTotal+50,
   };
-  return values[code] ?? null;
+  const amount = values[code] ?? null;
+  if (amount == null || amount === 0) return amount;
+  return Math.min(couponPolicy.maximum, Math.max(couponPolicy.minimum, amount));
 }
