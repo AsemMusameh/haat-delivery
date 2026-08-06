@@ -19,6 +19,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
   const [open, setOpen] = useState(false);
   const { theme, toggle } = useTheme();
   const { locale, setLocale, t } = useLocale();
+  const showCelebrationStrip = path === "/community" || path === "/messages";
   const employeeNav = [
     { href: "/dashboard", label: t.home, icon: Home },
     { href: "/announcements", label: t.announcements, icon: Megaphone },
@@ -91,7 +92,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
         </div>
       </header>
 
-      <CelebrationStrip />
+      {showCelebrationStrip && <CelebrationStrip />}
       <main className="w-full p-4 sm:p-8">{children}</main>
       <nav className="mobile-dock fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 px-1 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 lg:hidden">
         {employeeNav.slice(0, 5).map(({ href, label, icon: Icon }) => <Link key={href} href={href} className={cn("flex flex-col items-center gap-1 text-[9px] text-[var(--muted)]", path === href && "font-bold text-[var(--primary)]")}><Icon size={19} />{label}</Link>)}
