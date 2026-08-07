@@ -1,4 +1,3 @@
-import { env } from "cloudflare:workers";
 import { defaultReplies, defaultTools, type ReplyTemplate, type WorkTool } from "@/lib/content-defaults";
 
 type ToolRow = { id: string; title_ar: string; title_en: string; description_ar: string; description_en: string; url: string; icon: WorkTool["icon"]; color: WorkTool["color"]; sort_order: number; is_active: number };
@@ -6,8 +5,9 @@ type ReplyRow = { id: string; category: string; title: string; body_ar: string; 
 
 const now = () => new Date().toISOString();
 const db = () => {
-  if (!env.DB) throw new Error("CONTENT_DB_UNAVAILABLE");
-  return env.DB;
+  const runtime = (globalThis as typeof globalThis & { __HAAT_WORKER_ENV__?: { DB?: D1Database } }).__HAAT_WORKER_ENV__;
+  if (!runtime?.DB) throw new Error("CONTENT_DB_UNAVAILABLE");
+  return runtime.DB;
 };
 
 export async function ensureContentStore() {
