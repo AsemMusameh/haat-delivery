@@ -1,0 +1,1 @@
+ALTER TABLE `reply_templates` ADD `department` text DEFAULT 'chat' NOT NULL;

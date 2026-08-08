@@ -17,6 +17,7 @@ export const workTools = sqliteTable("work_tools", {
 
 export const replyTemplates = sqliteTable("reply_templates", {
   id: text("id").primaryKey(),
+  department: text("department").notNull().default("chat"),
   category: text("category").notNull(),
   title: text("title").notNull(),
   bodyAr: text("body_ar").notNull(),
