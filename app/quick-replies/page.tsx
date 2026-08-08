@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpenText, Check, ChevronDown, ChevronUp, Copy, Headphones, Languages, MessageSquareText, MessagesSquare, Search, Sparkles } from "lucide-react";
+import { BookOpenText, Check, ChevronDown, ChevronUp, Copy, Headphones, Languages, LayoutGrid, MessageSquareText, MessagesSquare, Search, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
@@ -86,8 +86,14 @@ export default function QuickRepliesPage() {
             <label className="relative"><Search className="absolute start-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" size={18}/><input className="input h-12 ps-11" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={ar ? "ابحث داخل الدليل أو الماكرو..." : "Search the guide or macros..."}/></label>
           </div>
         </section>
-        <div className="mb-5 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <div className="flex gap-2 overflow-x-auto pb-1"><button onClick={() => setCategory("all")} className={category === "all" ? "btn btn-primary whitespace-nowrap !py-2 text-xs" : "btn btn-secondary whitespace-nowrap !py-2 text-xs"}>{ar ? "الكل" : "All"}</button>{availableCategories.map((item) => <button key={item.id} onClick={() => setCategory(item.id)} className={category === item.id ? "btn btn-primary whitespace-nowrap !py-2 text-xs" : "btn btn-secondary whitespace-nowrap !py-2 text-xs"}>{item.emoji} {ar ? item.ar : item.en}</button>)}</div>
+        <div className="mb-5 flex flex-col gap-4">
+          <section className="quick-category-shell" aria-label={ar ? "تصفّح حالات الدليل" : "Browse guide categories"}>
+            <header className="quick-category-heading"><span><LayoutGrid size={18}/></span><div><b>{ar ? "تصفّح حسب الحالة" : "Browse by case"}</b><small>{ar ? "اختر الحالة التي تعمل عليها الآن" : "Choose the case you are handling now"}</small></div></header>
+            <div className="quick-category-track">
+              <button aria-pressed={category === "all"} onClick={() => setCategory("all")} className={`quick-category-item ${category === "all" ? "active" : ""}`}><i><LayoutGrid size={18}/></i><span>{ar ? "كل المحتوى" : "All content"}</span><small>{departmentItems.length}</small></button>
+              {availableCategories.map((item) => {const itemCount=departmentItems.filter((reply)=>reply.category===item.id).length;return <button aria-pressed={category === item.id} key={item.id} onClick={() => setCategory(item.id)} className={`quick-category-item ${category === item.id ? "active" : ""}`}><i>{item.emoji}</i><span>{ar ? item.ar : item.en}</span><small>{itemCount}</small></button>})}
+            </div>
+          </section>
           <div className="inline-flex w-fit items-center gap-1 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-1"><Languages className="mx-2 text-[var(--muted)]" size={17}/>{(["ar", "he", "en"] as ReplyLanguage[]).map((value) => <button key={value} onClick={() => setLanguage(value)} className={language === value ? "rounded-xl bg-[var(--primary)] px-4 py-2 text-xs font-black text-white" : "rounded-xl px-4 py-2 text-xs font-black text-[var(--muted)] hover:bg-[var(--surface-2)]"}>{languageNames[value]}</button>)}</div>
         </div>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h3 className="font-black">{department === "chat" ? (ar ? `${guideCount} قسم إرشادي · ${macroCount} ماكرو` : `${guideCount} guide sections · ${macroCount} macros`) : (ar ? `${visible.length} رد جاهز` : `${visible.length} ready replies`)}</h3><span className="text-[10px] font-bold text-[var(--muted)]">{ar ? "افتح الإرشاد أو انسخ الماكرو مباشرة" : "Open guidance or copy a macro"}</span></div>
