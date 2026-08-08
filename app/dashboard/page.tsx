@@ -85,7 +85,7 @@ export default function Dashboard() {
           </div>
           <Link
             href="/requests?new=shift_change"
-            className="btn border-white/20 bg-white text-[var(--primary)] shadow-lg hover:bg-rose-50"
+            className="btn border-white/20 bg-white !text-[var(--primary)] shadow-lg hover:bg-rose-50"
           >
             <CalendarClock size={17} />
             {ar ? "طلب تعديل وردية" : "Change shift"}

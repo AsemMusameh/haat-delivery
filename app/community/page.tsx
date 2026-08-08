@@ -146,16 +146,20 @@ function Avatar({
   name,
   id,
   small = false,
+  linked = true,
 }: {
   name: string;
   id?: string;
   small?: boolean;
+  linked?: boolean;
 }) {
+  const className = `grid ${small ? "size-8 text-[10px]" : "size-11 text-sm"} shrink-0 place-items-center rounded-full bg-gradient-to-br from-rose-100 to-rose-200 font-black text-[var(--primary)] ring-2 ring-white transition hover:scale-105 hover:ring-rose-300`;
+  if (!linked) return <span className={className}>{name.trim()[0] || "H"}</span>;
   return (
     <Link
       href={`/employees/${profileId(name, id)}`}
       aria-label={`فتح ملف ${name}`}
-      className={`grid ${small ? "size-8 text-[10px]" : "size-11 text-sm"} shrink-0 place-items-center rounded-full bg-gradient-to-br from-rose-100 to-rose-200 font-black text-[var(--primary)] ring-2 ring-white transition hover:scale-105 hover:ring-rose-300`}
+      className={className}
     >
       {name.trim()[0] || "H"}
     </Link>
@@ -964,7 +968,7 @@ export default function Community() {
                       href={`/employees/${person?.id || "mohammad-ahmad"}`}
                       className="flex items-center gap-3 rounded-2xl border border-[var(--line)] p-3 hover:bg-[var(--surface-2)]"
                     >
-                      <Avatar name={name} id={person?.id} small />
+                      <Avatar name={name} id={person?.id} small linked={false} />
                       <div>
                         <b className="block text-xs">{name}</b>
                         <span className="text-[9px] text-[var(--muted)]">
