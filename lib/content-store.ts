@@ -1,7 +1,7 @@
 import { defaultReplies, defaultTools, type ReplyTemplate, type WorkTool } from "@/lib/content-defaults";
 
 type ToolRow = { id: string; title_ar: string; title_en: string; description_ar: string; description_en: string; url: string; icon: WorkTool["icon"]; color: WorkTool["color"]; sort_order: number; is_active: number };
-type ReplyRow = { id: string; department: ReplyTemplate["department"]; category: string; title: string; body_ar: string; body_he: string; body_en: string; sort_order: number; is_active: number };
+type ReplyRow = { id: string; department: ReplyTemplate["department"]; content_type: "guide" | "macro"; category: string; title: string; body_ar: string; body_he: string; body_en: string; sort_order: number; is_active: number };
 
 const now = () => new Date().toISOString();
 const db = () => {
@@ -21,7 +21,7 @@ export async function ensureContentStore() {
       created_at TEXT NOT NULL, updated_at TEXT NOT NULL
     )`),
     database.prepare(`CREATE TABLE IF NOT EXISTS reply_templates (
-      id TEXT PRIMARY KEY, department TEXT NOT NULL DEFAULT 'chat', category TEXT NOT NULL, title TEXT NOT NULL,
+      id TEXT PRIMARY KEY, department TEXT NOT NULL DEFAULT 'chat', content_type TEXT NOT NULL DEFAULT 'macro', category TEXT NOT NULL, title TEXT NOT NULL,
       body_ar TEXT NOT NULL, body_he TEXT NOT NULL, body_en TEXT NOT NULL,
       sort_order INTEGER NOT NULL DEFAULT 0, is_active INTEGER NOT NULL DEFAULT 1,
       created_at TEXT NOT NULL, updated_at TEXT NOT NULL
@@ -36,8 +36,8 @@ export async function ensureContentStore() {
       (id,title_ar,title_en,description_ar,description_en,url,icon,color,sort_order,is_active,created_at,updated_at)
       VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`).bind(item.id, item.titleAr, item.titleEn, item.descriptionAr, item.descriptionEn, item.url, item.icon, item.color, item.sortOrder, item.isActive ? 1 : 0, stamp, stamp)),
     ...defaultReplies.map((item) => database.prepare(`INSERT OR IGNORE INTO reply_templates
-      (id,department,category,title,body_ar,body_he,body_en,sort_order,is_active,created_at,updated_at)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?)`).bind(item.id, item.department, item.category, item.title, item.bodyAr, item.bodyHe, item.bodyEn, item.sortOrder, item.isActive ? 1 : 0, stamp, stamp)),
+      (id,department,content_type,category,title,body_ar,body_he,body_en,sort_order,is_active,created_at,updated_at)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`).bind(item.id, item.department, item.contentType ?? "macro", item.category, item.title, item.bodyAr, item.bodyHe, item.bodyEn, item.sortOrder, item.isActive ? 1 : 0, stamp, stamp)),
   ]);
 }
 
@@ -50,7 +50,7 @@ export async function listContent(includeInactive = false) {
     database.prepare(`SELECT * FROM reply_templates${where} ORDER BY sort_order, title`).all<ReplyRow>(),
   ]);
   const tools: WorkTool[] = (toolResult.results ?? []).map((row) => ({ id: row.id, titleAr: row.title_ar, titleEn: row.title_en, descriptionAr: row.description_ar, descriptionEn: row.description_en, url: row.url, icon: row.icon, color: row.color, sortOrder: row.sort_order, isActive: Boolean(row.is_active) }));
-  const replies: ReplyTemplate[] = (replyResult.results ?? []).map((row) => ({ id: row.id, department: row.department ?? "chat", category: row.category, title: row.title, bodyAr: row.body_ar, bodyHe: row.body_he, bodyEn: row.body_en, sortOrder: row.sort_order, isActive: Boolean(row.is_active) }));
+  const replies: ReplyTemplate[] = (replyResult.results ?? []).map((row) => ({ id: row.id, department: row.department ?? "chat", contentType: row.content_type ?? "macro", category: row.category, title: row.title, bodyAr: row.body_ar, bodyHe: row.body_he, bodyEn: row.body_en, sortOrder: row.sort_order, isActive: Boolean(row.is_active) }));
   return { tools, replies };
 }
 
@@ -70,11 +70,11 @@ export async function saveReply(item: ReplyTemplate) {
   await ensureContentStore();
   const stamp = now();
   await db().prepare(`INSERT INTO reply_templates
-    (id,department,category,title,body_ar,body_he,body_en,sort_order,is_active,created_at,updated_at)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?)
-    ON CONFLICT(id) DO UPDATE SET department=excluded.department,category=excluded.category,title=excluded.title,body_ar=excluded.body_ar,
+    (id,department,content_type,category,title,body_ar,body_he,body_en,sort_order,is_active,created_at,updated_at)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+    ON CONFLICT(id) DO UPDATE SET department=excluded.department,content_type=excluded.content_type,category=excluded.category,title=excluded.title,body_ar=excluded.body_ar,
     body_he=excluded.body_he,body_en=excluded.body_en,sort_order=excluded.sort_order,is_active=excluded.is_active,updated_at=excluded.updated_at`)
-    .bind(item.id, item.department, item.category, item.title, item.bodyAr, item.bodyHe, item.bodyEn, item.sortOrder, item.isActive ? 1 : 0, stamp, stamp).run();
+    .bind(item.id, item.department, item.contentType ?? "macro", item.category, item.title, item.bodyAr, item.bodyHe, item.bodyEn, item.sortOrder, item.isActive ? 1 : 0, stamp, stamp).run();
 }
 
 export async function deleteContent(kind: "tool" | "reply", id: string) {
