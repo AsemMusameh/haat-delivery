@@ -9,6 +9,7 @@ import { defaultReplies, replyCategories, type ReplyDepartment, type ReplyTempla
 
 type ReplyLanguage = "ar" | "he" | "en";
 const languageNames: Record<ReplyLanguage, string> = { ar: "العربية", he: "עברית", en: "English" };
+const effectiveCategory = (item: ReplyTemplate, department?: Exclude<ReplyDepartment, "both">) => department === "voice" && item.department === "both" && item.category === "account" ? "technical" : item.category;
 
 export default function QuickRepliesPage() {
   const { locale } = useLocale();
@@ -30,14 +31,14 @@ export default function QuickRepliesPage() {
 
   const departmentItems = useMemo(() => department ? replies.filter((item) => item.department === department || item.department === "both") : [], [replies, department]);
   const countFor = (value: Exclude<ReplyDepartment, "both">) => replies.filter((item) => item.department === value || item.department === "both").length;
-  const availableCategories = useMemo(() => replyCategories.filter((entry) => departmentItems.some((item) => item.category === entry.id)), [departmentItems]);
+  const availableCategories = useMemo(() => replyCategories.filter((entry) => departmentItems.some((item) => effectiveCategory(item, department) === entry.id)), [departmentItems, department]);
   const visible = useMemo(() => {
     const value = query.trim().toLowerCase();
     return departmentItems.filter((item) =>
-      (category === "all" || item.category === category) &&
+      (category === "all" || effectiveCategory(item, department) === category) &&
       (!value || `${item.title} ${item.bodyAr} ${item.bodyHe} ${item.bodyEn}`.toLowerCase().includes(value))
     );
-  }, [departmentItems, category, query]);
+  }, [departmentItems, category, query, department]);
 
   const guideCount = departmentItems.filter((item) => item.contentType === "guide").length;
   const macroCount = departmentItems.length - guideCount;
@@ -91,14 +92,14 @@ export default function QuickRepliesPage() {
             <header className="quick-category-heading"><span><LayoutGrid size={18}/></span><div><b>{ar ? "تصفّح حسب الحالة" : "Browse by case"}</b><small>{ar ? "اختر الحالة التي تعمل عليها الآن" : "Choose the case you are handling now"}</small></div></header>
             <div className="quick-category-track">
               <button aria-pressed={category === "all"} onClick={() => setCategory("all")} className={`quick-category-item ${category === "all" ? "active" : ""}`}><i><LayoutGrid size={18}/></i><span>{ar ? "كل المحتوى" : "All content"}</span><small>{departmentItems.length}</small></button>
-              {availableCategories.map((item) => {const itemCount=departmentItems.filter((reply)=>reply.category===item.id).length;return <button aria-pressed={category === item.id} key={item.id} onClick={() => setCategory(item.id)} className={`quick-category-item ${category === item.id ? "active" : ""}`}><i>{item.emoji}</i><span>{ar ? item.ar : item.en}</span><small>{itemCount}</small></button>})}
+              {availableCategories.map((item) => {const itemCount=departmentItems.filter((reply)=>effectiveCategory(reply,department)===item.id).length;return <button aria-pressed={category === item.id} key={item.id} onClick={() => setCategory(item.id)} className={`quick-category-item ${category === item.id ? "active" : ""}`}><i>{item.emoji}</i><span>{ar ? item.ar : item.en}</span><small>{itemCount}</small></button>})}
             </div>
           </section>
           <div className="inline-flex w-fit items-center gap-1 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-1"><Languages className="mx-2 text-[var(--muted)]" size={17}/>{(["ar", "he", "en"] as ReplyLanguage[]).map((value) => <button key={value} onClick={() => setLanguage(value)} className={language === value ? "rounded-xl bg-[var(--primary)] px-4 py-2 text-xs font-black text-white" : "rounded-xl px-4 py-2 text-xs font-black text-[var(--muted)] hover:bg-[var(--surface-2)]"}>{languageNames[value]}</button>)}</div>
         </div>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h3 className="font-black">{ar ? `${guideCount} قسم إرشادي · ${macroCount} ${department === "chat" ? "ماكرو" : "رد جاهز"}` : `${guideCount} guide sections · ${macroCount} ${department === "chat" ? "macros" : "ready replies"}`}</h3><span className="text-[10px] font-bold text-[var(--muted)]">{ar ? "افتح الإرشاد أو انسخ النص الجاهز مباشرة" : "Open guidance or copy a ready reply"}</span></div>
         {visible.length ? <section className="space-y-3">{visible.map((item) => {
-          const categoryInfo = replyCategories.find((entry) => entry.id === item.category);
+          const categoryInfo = replyCategories.find((entry) => entry.id === effectiveCategory(item, department));
           const isGuide = item.contentType === "guide";
           const isOpen = expanded.has(item.id);
           return isGuide ? <article key={item.id} className="card overflow-hidden">
