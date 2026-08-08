@@ -36,6 +36,20 @@
       "when": 1786216969000,
       "tag": "0004_remove_voice_no_answer",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1786226793371,
+      "tag": "0005_vengeful_deathstrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1786227061017,
+      "tag": "0006_milky_rage",
+      "breakpoints": true
     }
   ]
 }

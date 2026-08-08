@@ -1,31 +1,239 @@
 "use client";
-import { Ban, Bell, Building2, CalendarHeart, CheckCircle2, ChevronDown, Clock3, Gauge, Headset, RefreshCw, ScanSearch, Search, ShieldCheck, Sparkles, Trophy } from "lucide-react";
-import { AppShell } from "@/components/app-shell";
-import { PwaInstall } from "@/components/pwa-install";
-import { useLocale } from "@/components/locale-provider";
-import { StatCard } from "@/components/ui";
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Bell,
+  BookOpenCheck,
+  Building2,
+  CalendarClock,
+  CalendarDays,
+  CheckCircle2,
+  ChevronLeft,
+  Clock3,
+  FilePenLine,
+  Gauge,
+  Megaphone,
+  Sparkles,
+} from "lucide-react";
+import { AppShell } from "@/components/app-shell";
+import { HaatPulse } from "@/components/haat-pulse";
+import { CoverageMap } from "@/components/coverage-map";
+import { PwaInstall } from "@/components/pwa-install";
+import { StatCard } from "@/components/ui";
+import { useLocale } from "@/components/locale-provider";
+import { demoAnnouncements } from "@/lib/demo-data";
+import { mockSchedule, type ScheduleEntry } from "@/lib/employee-data";
 
-export default function Dashboard(){const{locale,t}=useLocale();const ar=locale==="ar";const responsibilities=[
- {icon:Headset,title:ar?"استقبال وفهم التوجّه":"Receive and understand",summary:ar?"فهم المشكلة ونوع النقص قبل بدء المتابعة.":"Understand the issue and the missing part before follow-up.",body:ar?"يجب على قسم خدمة الزبائن استقبال توجّه الزبون وفهم المشكلة بوضوح، بما في ذلك ما إذا كان الزبون يستفسر عن جزء ناقص من الطلب أو عن توصيل جزئي.":"Customer Service must clearly understand whether the customer is asking about a missing part of the order or a partial delivery."},
- {icon:ScanSearch,title:ar?"الفحص مع مركز التحكم":"Check with Control Center",summary:ar?"معرفة حالة التوصيل وعدد المرسلين المسؤولين.":"Verify delivery status and whether multiple drivers are involved.",body:ar?"يجب فحص الحالة مع مركز التحكم لفهم حالة التوصيل، وما إذا كان الطلب يتم التعامل معه من قبل أكثر من مرسل.":"Check the case with the Control Center to understand the delivery status and whether the order is being handled by more than one driver."},
- {icon:Ban,title:ar?"عدم اتخاذ إجراء تشغيلي":"No operational action",summary:ar?"يبقى التنفيذ التقني والتشغيلي من مسؤولية الجهة المختصة.":"Technical and operational execution stays with the responsible team.",body:ar?"لا يجوز لقسم خدمة الزبائن اتخاذ أي إجراء تقني أو تشغيلي متعلق بالإسناد، أو التعامل مع المرسلين، أو إجراءات لوحة التحكم.":"Customer Service must not take technical or operational action related to assignment, driver handling, or control-panel procedures."},
- {icon:RefreshCw,title:ar?"التنسيق والتواصل":"Coordinate and communicate",summary:ar?"تحديث الزبون بوضوح وفق آخر معلومة مؤكدة.":"Update the customer clearly using the latest confirmed information.",body:ar?"يقتصر دور قسم خدمة الزبائن على فحص الحالة، والتنسيق مع مركز التحكم، وتحديث الزبون بناءً على المعلومات المستلمة. يجب التواصل معه بوضوح وشرح حالة الطلب وفق التحديث الوارد من مركز التحكم.":"Customer Service checks the case, coordinates with the Control Center, and clearly updates the customer based on the confirmed information received."}
- ];return <AppShell title={t.dashboardTitle}><PwaInstall/>
- <section className="dashboard-hero mb-6"><div className="hero-shape one"/><div className="hero-shape two"/><div className="relative z-10"><span className="hero-kicker"><Sparkles size={14}/>{ar?"مرحباً بعودتك":"Welcome back"}</span><h2>{ar?"صباح الخير، أحمد 👋":"Good morning, Ahmad 👋"}</h2><p>{ar?"هذه نظرة سريعة على يومك وأحدث نشاطات فريقك.":"Here’s a quick look at your day and your team’s latest activity."}</p><div className="hero-meta"><span><Building2 size={15}/>{t.department}</span><span><Clock3 size={15}/>{ar?"الوردية 09:00 – 17:00":"Shift 09:00 – 17:00"}</span></div></div><label className="hero-search"><Search size={19}/><input aria-label={t.search} placeholder={t.search}/></label></section>
- <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><StatCard label={ar?"درجة الأداء":"Performance score"} value="92%" icon={Gauge} tone="red" trend={5.2} note={ar?"أعلى من متوسط الفريق":"Above team average"}/><StatCard label={ar?"نسبة الحضور":"Attendance rate"} value="97%" icon={CheckCircle2} tone="green" trend={1.4} note={ar?"28 يوم عمل":"28 working days"}/><StatCard label={t.unread} value="3" icon={Bell} tone="orange" trend={-25} note={ar?"تحتاج إلى مراجعتك":"Need your attention"}/><StatCard label={ar?"ترتيب القسم":"Department rank"} value="#3" icon={Trophy} tone="blue" trend={8} note={ar?"من أصل 32 موظف":"Out of 32 employees"}/></div>
- <section className="mb-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{[
-  {icon:Building2,title:ar?"حول الشركة":"About HAAT",body:ar?"تعرّف على رؤيتنا، قيمنا، والفرق التي تصنع التجربة.":"Explore our vision, values, and the teams behind the experience.",href:"/community"},
-  {icon:ShieldCheck,title:ar?"سياسات الشركة":"Company Policies",body:ar?"مرجع واضح لسياسات العمل وخدمة الزبائن والسلوك المهني.":"A clear reference for workplace, service, and conduct policies.",href:"/announcements"},
-  {icon:Trophy,title:ar?"إنجازات الشركة":"Company Achievements",body:ar?"نحتفل بإنجازات الفرق والنتائج التي نصنعها معاً.":"Celebrating the teams and results we build together.",href:"/community"},
-  {icon:CalendarHeart,title:ar?"العطل الرسمية":"Official Holidays",body:ar?"راجع العطل الرسمية وخطط لجدولك مسبقاً.":"Review public holidays and plan your schedule ahead.",href:"/schedule"}
- ].map(({icon:Icon,title,body,href})=><Link key={title} href={href} className="company-section card p-5 transition-transform hover:-translate-y-1"><i className="row-icon mb-4"><Icon size={22}/></i><h3 className="text-lg font-black">{title}</h3><p className="relative z-10 mt-2 text-sm leading-7 text-[var(--muted)]">{body}</p></Link>)}</section>
- <details className="work-guide-box mb-7">
-  <summary className="work-guide-summary"><i><ShieldCheck size={24}/></i><div><span>{ar?"مرجع الموظف":"Employee reference"}</span><h2>{ar?"دليل العمل - خدمة الزبائن":"Work Guide - Customer Service"}</h2><p>{ar?"مسؤوليات القسم وخطوات التعامل مع الطلبات الكبيرة والتوصيل الجزئي.":"Team responsibilities for large orders and partial deliveries."}</p></div><strong>{ar?"عرض الدليل":"Open guide"}<ChevronDown size={18}/></strong></summary>
-  <section className="customer-responsibilities">
-   <div className="responsibilities-heading"><div><span><ShieldCheck size={15}/>{ar?"مسؤوليات القسم":"Team responsibilities"}</span><h2>{ar?"مسؤوليات خدمة الزبائن":"Customer Service Responsibilities"}</h2><p>{ar?"عند ورود توجّه متعلق بطلب كبير أو وصول جزء فقط من الطلب، اتبع هذه الخطوات الأربع بالترتيب.":"When a large order arrives partially, follow these four responsibilities in order."}</p></div><strong>4 <small>{ar?"خطوات واضحة":"clear steps"}</small></strong></div>
-   <div className="responsibilities-grid">{responsibilities.map(({icon:Icon,title,summary,body},index)=><details key={title} className="responsibility-card" open={index===0}><summary><span className="responsibility-number">{String(index+1).padStart(2,"0")}</span><i><Icon size={21}/></i><div><b>{title}</b><small>{summary}</small></div><ChevronDown className="responsibility-chevron" size={18}/></summary><p>{body}</p></details>)}</div>
-   <div className="responsibilities-note"><ShieldCheck size={18}/><p>{ar?"قاعدة أساسية: دور خدمة الزبائن هو الفحص والتنسيق والتحديث الواضح؛ أما الإجراءات التقنية والتشغيلية فتتم من خلال الجهة المختصة.":"Core rule: Customer Service checks, coordinates, and communicates clearly; technical and operational actions belong to the responsible team."}</p></div>
-  </section>
- </details>
- </AppShell>}
+export default function Dashboard() {
+  const { locale, t } = useLocale();
+  const ar = locale === "ar";
+  const [schedule, setSchedule] = useState<ScheduleEntry[]>(mockSchedule);
+  const [requestCount, setRequestCount] = useState(0);
+  useEffect(() => {
+    fetch("/api/connecteam/schedule?from=2026-08-03&to=2026-08-10")
+      .then((r) => r.json())
+      .then((d) => Array.isArray(d.schedule) && setSchedule(d.schedule))
+      .catch(() => {});
+    fetch("/api/requests")
+      .then((r) => r.json())
+      .then((d) =>
+        setRequestCount(
+          (d.requests || []).filter((x: { status: string }) =>
+            ["pending", "in_review"].includes(x.status),
+          ).length,
+        ),
+      )
+      .catch(() => {});
+  }, []);
+  const working = useMemo(
+    () => schedule.filter((s) => s.shiftType !== "Day Off"),
+    [schedule],
+  );
+  const today = working[0];
+  const next = working[1];
+  const latest = demoAnnouncements[0];
+  return (
+    <AppShell title={t.dashboardTitle}>
+      <PwaInstall />
+      <div className="mx-auto max-w-7xl">
+        <section className="dashboard-hero mb-6">
+          <div className="hero-shape one" />
+          <div className="hero-shape two" />
+          <div className="relative z-10">
+            <span className="hero-kicker">
+              <Sparkles size={14} />
+              {ar ? "مرحباً بعودتك" : "Welcome back"}
+            </span>
+            <h2>{ar ? "صباح الخير، محمد 👋" : "Good morning, Mohammad 👋"}</h2>
+            <p>
+              {ar
+                ? "كل ما تحتاجه لبدء ورديتك موجود هنا."
+                : "Everything you need to start your shift is here."}
+            </p>
+            <div className="hero-meta">
+              <span>
+                <Building2 size={15} />
+                {ar ? "تشات الزبائن" : "Customer Chat"}
+              </span>
+              <span>
+                <Clock3 size={15} />
+                {today
+                  ? `${today.start} – ${today.end}`
+                  : "لا توجد وردية اليوم"}
+              </span>
+            </div>
+          </div>
+          <Link
+            href="/requests?new=shift_change"
+            className="btn border-white/20 bg-white text-[var(--primary)] shadow-lg hover:bg-rose-50"
+          >
+            <CalendarClock size={17} />
+            {ar ? "طلب تعديل وردية" : "Change shift"}
+          </Link>
+        </section>
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard
+            label={ar ? "درجة الأداء" : "Performance"}
+            value="92%"
+            icon={Gauge}
+            tone="red"
+            trend={5.2}
+            note={ar ? "أعلى من متوسط الفريق" : "Above team average"}
+          />
+          <StatCard
+            label={ar ? "وردية اليوم" : "Today’s shift"}
+            value={today ? `${today.start}–${today.end}` : "إجازة"}
+            icon={Clock3}
+            tone="blue"
+            note={today?.location || "—"}
+          />
+          <StatCard
+            label={ar ? "الوردية القادمة" : "Next shift"}
+            value={next ? next.day : "—"}
+            icon={CalendarDays}
+            tone="green"
+            note={next ? `${next.start}–${next.end}` : "لا يوجد"}
+          />
+          <StatCard
+            label={ar ? "طلبات قيد المتابعة" : "Active requests"}
+            value={requestCount}
+            icon={FilePenLine}
+            tone="orange"
+            note={ar ? "راجع الحالة من نظام الطلبات" : "Track in requests"}
+          />
+      </div>
+      <div className="mb-6">
+        <CoverageMap />
+      </div>
+      <div className="grid gap-5 xl:grid-cols-[1.45fr_.85fr]">
+          <section className="space-y-5">
+            <article className="card overflow-hidden">
+              <div className="flex items-center justify-between border-b border-[var(--line)] p-5">
+                <div>
+                  <span className="text-[10px] font-black text-[var(--primary)]">
+                    {ar ? "آخر إعلان" : "LATEST ANNOUNCEMENT"}
+                  </span>
+                  <h3 className="mt-1 font-black">{latest.title}</h3>
+                </div>
+                <Megaphone className="text-[var(--primary)]" />
+              </div>
+              <div className="p-5">
+                <p className="text-xs leading-7 text-[var(--muted)]">
+                  {latest.body}
+                </p>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="text-[9px] text-[var(--muted)]">
+                    {latest.author?.full_name} •{" "}
+                    {new Date(latest.published_at!).toLocaleString(
+                      ar ? "ar" : "en",
+                    )}
+                  </span>
+                  <Link
+                    href={`/announcements/${latest.id}`}
+                    className="inline-flex items-center gap-1 text-[10px] font-black text-[var(--primary)]"
+                  >
+                    {ar ? "فتح الإعلان" : "Open"}
+                    <ChevronLeft size={15} />
+                  </Link>
+                </div>
+              </div>
+            </article>
+            <article className="card p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-black text-[var(--primary)]">
+                    {ar ? "ابدأ من هنا" : "QUICK ACTIONS"}
+                  </span>
+                  <h3 className="mt-1 font-black">
+                    {ar ? "إجراءات سريعة" : "Quick actions"}
+                  </h3>
+                </div>
+                <CheckCircle2 className="text-emerald-600" />
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <Link
+                  href="/requests?new=leave"
+                  className="rounded-2xl border border-[var(--line)] bg-[var(--surface-2)] p-4 transition hover:border-rose-200"
+                >
+                  <CalendarDays className="text-[var(--primary)]" size={21} />
+                  <b className="mt-3 block text-xs">طلب إجازة</b>
+                  <span className="mt-1 block text-[9px] text-[var(--muted)]">
+                    أرسل وتابع الموافقة
+                  </span>
+                </Link>
+                <Link
+                  href="/requests?new=shift_change"
+                  className="rounded-2xl border border-[var(--line)] bg-[var(--surface-2)] p-4 transition hover:border-rose-200"
+                >
+                  <CalendarClock className="text-[var(--primary)]" size={21} />
+                  <b className="mt-3 block text-xs">تعديل وردية</b>
+                  <span className="mt-1 block text-[9px] text-[var(--muted)]">
+                    تغيير أو تبديل الموعد
+                  </span>
+                </Link>
+                <Link
+                  href="/quick-replies"
+                  className="rounded-2xl border border-[var(--line)] bg-[var(--surface-2)] p-4 transition hover:border-rose-200"
+                >
+                  <BookOpenCheck className="text-[var(--primary)]" size={21} />
+                  <b className="mt-3 block text-xs">دليل العمل</b>
+                  <span className="mt-1 block text-[9px] text-[var(--muted)]">
+                    السياسات والردود الجاهزة
+                  </span>
+                </Link>
+              </div>
+            </article>
+          </section>
+          <aside className="space-y-5">
+            <HaatPulse />
+            <article className="card p-5">
+              <div className="flex items-center justify-between">
+                <h3 className="font-black">مهام اليوم</h3>
+                <Bell size={18} className="text-[var(--primary)]" />
+              </div>
+              <div className="mt-4 space-y-3">
+                {[
+                  "مراجعة آخر تعميم عاجل",
+                  "تأكيد جدول الوردية",
+                  "إغلاق طلب المتابعة المفتوح",
+                ].map((item, index) => (
+                  <label
+                    key={item}
+                    className="flex items-center gap-3 rounded-xl bg-[var(--surface-2)] p-3 text-[10px] font-bold"
+                  >
+                    <input
+                      type="checkbox"
+                      defaultChecked={index === 1}
+                      className="accent-[var(--primary)]"
+                    />
+                    {item}
+                  </label>
+                ))}
+              </div>
+            </article>
+          </aside>
+        </div>
+      </div>
+    </AppShell>
+  );
+}

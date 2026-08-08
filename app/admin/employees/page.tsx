@@ -95,7 +95,7 @@ export default function Employees() {
         </select>
         <label className="btn btn-secondary cursor-pointer">
           <FileSpreadsheet size={17} />
-          استيراد
+          استيراد وإنشاء حسابات
           <input
             type="file"
             className="hidden"
@@ -105,6 +105,9 @@ export default function Employees() {
         </label>
       </div>
       <div className="card overflow-hidden">
+        <div className="border-b border-emerald-200 bg-emerald-50 px-5 py-3 text-[10px] leading-5 text-emerald-800">
+          ملف Excel ينشئ حساب دخول لكل موظف باستخدام البريد وكلمة المرور الموجودة في الملف، ثم يضيف ملفه الوظيفي وصلاحياته حسب الدور.
+        </div>
         <div className="flex items-center justify-between border-b border-[var(--line)] p-5">
           <h2 className="font-black">
             الموظفون{" "}

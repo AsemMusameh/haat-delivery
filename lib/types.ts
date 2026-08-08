@@ -16,4 +16,4 @@ export interface Announcement {
   target_label?: string; read_count: number; recipient_count: number; is_read?: boolean;
   read_at?: string; is_bookmarked?: boolean; attachments?: Attachment[];
 }
-export interface NotificationItem { id: string; title: string; body: string; is_read: boolean; created_at: string; announcement_id?: string; }
+export interface NotificationItem { id: string; title: string; body: string; is_read: boolean; created_at: string; announcement_id?: string; link?: string; kind?: "announcement"|"community_post"|"mention"|"request"; }

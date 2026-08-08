@@ -2,7 +2,8 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { legacyEnglishEntries, Locale, messages } from "@/lib/i18n";
 
-const LocaleContext=createContext({locale:"ar" as Locale,setLocale:(_locale:Locale)=>{},t:messages.ar});
+type LocaleMessages={ [K in keyof typeof messages.ar]: string };
+const LocaleContext=createContext<{locale:Locale;setLocale:(locale:Locale)=>void;t:LocaleMessages}>({locale:"ar",setLocale:()=>{},t:messages.ar});
 const originalText=new WeakMap<Node,string>();
 const originalAttributes=new WeakMap<Element,Map<string,string>>();
 const translatedNodes=new Set<Node>();

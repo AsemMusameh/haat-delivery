@@ -1,8 +1,8 @@
 "use client";
 
 import {
-  AppWindow, Bell, Bookmark, CalendarDays, ChartNoAxesCombined, CircleDollarSign, CircleUserRound, ClipboardCheck,
-  ChevronLeft, ChevronRight, FileWarning, Globe2, Home, LayoutList, LogOut, Megaphone, Menu, MessageCircleMore, MessageSquareText, MessagesSquare, Moon, Search, Settings, Sun, Users, UtensilsCrossed,
+  AppWindow, Bell, Bike, Bookmark, CalendarDays, ChartNoAxesCombined, CircleDollarSign, CircleUserRound, ClipboardCheck, ClipboardList,
+  ChevronLeft, ChevronRight, FileWarning, Globe2, Home, KeyRound, LayoutList, LogOut, MapPinned, Megaphone, Menu, MessageCircleMore, MessageSquareText, MessagesSquare, Moon, Plug, Search, Settings, Sun, Users, UtensilsCrossed,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -22,9 +22,11 @@ export function AppShell({ children, title, admin = false, action }: { children:
   const showCelebrationStrip = path === "/community" || path === "/messages";
   const employeeNav = [
     { href: "/dashboard", label: t.home, icon: Home },
+    { href: "/requests", label: locale==="ar"?"الطلبات":"Requests", icon: ClipboardList },
     { href: "/announcements", label: t.announcements, icon: Megaphone },
     { href: "/compensations", label: locale==="ar"?"التعويضات":"Compensations", icon: CircleDollarSign },
     { href: "/restaurants", label: locale==="ar"?"التواصل مع المطاعم":"Restaurant Contacts", icon: UtensilsCrossed },
+    { href: "/couriers", label: locale==="ar"?"أرقام المرسلين":"Courier Directory", icon: Bike },
     { href: "/community", label: locale==="ar"?"مجتمع الشركة":"Company Feed", icon: MessagesSquare },
     { href: "/messages", label: locale==="ar"?"الرسائل":"Messages", icon: MessageCircleMore },
     { href: "/apps", label: locale==="ar"?"الروابط والاستخدام":"Links & Tools", icon: AppWindow },
@@ -40,15 +42,20 @@ export function AppShell({ children, title, admin = false, action }: { children:
     { href: "/admin", label: t.admin, icon: ChartNoAxesCombined },
     { href: "/admin/announcements/new", label: t.newAnnouncement, icon: Megaphone },
     { href: "/admin/reports", label: t.reports, icon: ChartNoAxesCombined },
+    { href: "/admin/requests", label: locale==="ar"?"إدارة الطلبات":"Manage Requests", icon: ClipboardList },
     { href: "/admin/employees", label: t.employees, icon: Users },
+    { href: "/admin/permissions", label: locale==="ar"?"الحسابات والصلاحيات":"Accounts & Permissions", icon: KeyRound },
+    { href: "/admin/couriers", label: locale==="ar"?"دليل المرسلين":"Courier Directory", icon: Bike },
+    { href: "/admin/coverage", label: locale==="ar"?"مناطق التشغيل":"Coverage Areas", icon: MapPinned },
+    { href: "/admin/integrations", label: locale==="ar"?"التكاملات":"Integrations", icon: Plug },
     { href: "/admin/records", label: t.records, icon: FileWarning },
     { href: "/admin/compensations", label: locale==="ar"?"إدارة التعويضات":"Compensation Policy", icon: CircleDollarSign },
     { href: "/admin/content", label: locale==="ar"?"إدارة الإضافات":"Manage Additions", icon: LayoutList },
     { href: "/admin/settings", label: t.settings, icon: Settings },
   ];
   const groups = admin
-    ? [{ label: locale === "ar" ? "الإدارة" : "Management", items: adminNav }, { label: locale === "ar" ? "مساحة الموظف" : "Employee space", items: employeeNav.slice(0, 8) }]
-    : [{ label: locale === "ar" ? "مساحة العمل" : "Workspace", items: employeeNav.slice(0, 8) }, { label: locale === "ar" ? "متابعتي" : "My activity", items: employeeNav.slice(8) }];
+    ? [{ label: locale === "ar" ? "الإدارة" : "Management", items: adminNav }, { label: locale === "ar" ? "مساحة الموظف" : "Employee space", items: employeeNav.slice(0, 10) }]
+    : [{ label: locale === "ar" ? "مساحة العمل" : "Workspace", items: employeeNav.slice(0, 10) }, { label: locale === "ar" ? "متابعتي" : "My activity", items: employeeNav.slice(10) }];
 
   return (
     <div className="app-shell min-h-screen" data-locale={locale}>
