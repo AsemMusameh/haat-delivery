@@ -18,6 +18,7 @@ import {
 import { AppShell } from "@/components/app-shell";
 import { HaatPulse } from "@/components/haat-pulse";
 import { CoverageMap } from "@/components/coverage-map";
+import { DeliveryCoverageChecker } from "@/components/delivery-coverage-checker";
 import { PwaInstall } from "@/components/pwa-install";
 import { StatCard } from "@/components/ui";
 import { useLocale } from "@/components/locale-provider";
@@ -121,6 +122,9 @@ export default function Dashboard() {
             tone="orange"
             note={ar ? "راجع الحالة من نظام الطلبات" : "Track in requests"}
           />
+      </div>
+      <div className="mb-6">
+        <DeliveryCoverageChecker />
       </div>
       <div className="mb-6">
         <CoverageMap />
