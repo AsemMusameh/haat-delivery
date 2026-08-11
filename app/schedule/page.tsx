@@ -9,6 +9,7 @@ import {
   Timer,
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
+import { PageIntro } from "@/components/ui";
 import { mockSchedule, type ScheduleEntry } from "@/lib/employee-data";
 export default function Schedule() {
   const [items, setItems] = useState<ScheduleEntry[]>(mockSchedule);
@@ -33,26 +34,13 @@ export default function Schedule() {
   return (
     <AppShell title="جدول الدوام">
       <div className="mx-auto max-w-7xl">
-        <section className="rounded-[28px] bg-gradient-to-l from-[#7c0018] to-[#df3151] p-7 text-white">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <span className="text-[10px] font-black text-amber-200">
-                CONNECTEAM SYNC
-              </span>
-              <h2 className="mt-2 text-3xl font-black">وردياتي لهذا الأسبوع</h2>
-              <p className="mt-2 text-xs text-rose-100">
-                المواعيد، الاستراحة، مكان العمل، وأي ملاحظات على الوردية.
-              </p>
-            </div>
-            <button
+        <PageIntro eyebrow="CONNECTEAM SYNC" title="وردياتي لهذا الأسبوع" description="المواعيد، الاستراحة، مكان العمل، وأي ملاحظات على الوردية." icon={CalendarDays} action={<button
               onClick={load}
-              className="btn border-white/20 bg-white/15 text-white"
+              className="btn btn-primary"
             >
               <RefreshCw size={17} className={loading ? "animate-spin" : ""} />
               تحديث
-            </button>
-          </div>
-        </section>
+            </button>}/>
         <div
           className={`mt-4 flex items-start gap-3 rounded-2xl border p-4 ${connected ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-800"}`}
         >

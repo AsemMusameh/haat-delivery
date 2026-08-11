@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   BellRing,
   Building2,
+  ChartNoAxesCombined,
   ClipboardList,
   Megaphone,
   Plus,
@@ -10,7 +11,7 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { PulseSummary } from "@/components/haat-pulse";
-import { Progress, StatCard } from "@/components/ui";
+import { PageIntro, Progress, StatCard } from "@/components/ui";
 import { demoAnnouncements, departments } from "@/lib/demo-data";
 import { formatDate, priorityLabel } from "@/lib/utils";
 export default function Admin() {
@@ -30,6 +31,7 @@ export default function Admin() {
       }
     >
       <div className="mx-auto max-w-7xl">
+        <div className="mb-6"><PageIntro eyebrow="CONTROL CENTER" title="كل ما تحتاجه الإدارة في شاشة واحدة" description="راقب النشر والقراءة والطلبات، وانتقل مباشرة إلى الإجراء المطلوب." icon={ChartNoAxesCombined} action={<Link href="/admin/announcements/new" className="btn btn-primary"><Plus size={17}/>إنشاء تعميم</Link>}/></div>
         <div className="mb-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <StatCard
             label="إجمالي الموظفين"

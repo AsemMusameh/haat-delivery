@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 export function StatCard({label,value,icon:Icon,tone="green",note,trend}:{label:string,value:string|number,icon:LucideIcon,tone?:"green"|"blue"|"orange"|"red",note?:string,trend?:number}){return <article className={cn("stat-card card fade-up",tone)}><div className="stat-card-head"><i className="stat-card-icon"><Icon size={20}/></i>{trend!==undefined&&<span className={cn("trend-pill",trend<0&&"down")}>{trend>0?"↗":"↘"} {Math.abs(trend)}%</span>}</div><span className="stat-label">{label}</span><strong>{value}</strong>{note&&<p>{note}</p>}</article>}
@@ -7,3 +8,19 @@ export function Progress({value}:{value:number}){return <div className="h-2 over
 export function DonutChart({value,label,caption,size=132}:{value:number,label:string,caption?:string,size?:number}){const radius=46,circumference=2*Math.PI*radius,offset=circumference*(1-Math.min(100,value)/100);return <div className="donut-wrap"><div className="donut" style={{width:size,height:size}}><svg viewBox="0 0 112 112" role="img" aria-label={`${label}: ${value}%`}><circle className="donut-track" cx="56" cy="56" r={radius}/><circle className="donut-value" cx="56" cy="56" r={radius} strokeDasharray={circumference} strokeDashoffset={offset}/></svg><div><strong>{value}%</strong><span>{label}</span></div></div>{caption&&<p>{caption}</p>}</div>}
 export function MiniLineChart({values,labels,color="var(--primary)"}:{values:number[],labels?:string[],color?:string}){const max=Math.max(...values),min=Math.min(...values);const points=values.map((value,index)=>`${(index/(values.length-1))*100},${92-((value-min)/(max-min||1))*72}`).join(" ");return <div className="line-chart"><svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="Performance trend"><line x1="0" x2="100" y1="25" y2="25"/><line x1="0" x2="100" y1="60" y2="60"/><line x1="0" x2="100" y1="95" y2="95"/><polygon points={`0,100 ${points} 100,100`} fill="color-mix(in srgb, var(--primary) 12%, transparent)"/><polyline points={points} style={{stroke:color}}/>{values.map((value,index)=>{const x=(index/(values.length-1))*100,y=92-((value-min)/(max-min||1))*72;return <circle key={index} cx={x} cy={y} r="1.8" style={{fill:color}}/>})}</svg>{labels&&<div>{labels.map(label=><span key={label}>{label}</span>)}</div>}</div>}
 export function HorizontalBars({items}:{items:{label:string,value:number,color?:string}[]}){return <div className="horizontal-bars">{items.map(item=><div key={item.label} className="bar-row"><div><b>{item.label}</b><span>{item.value}%</span></div><i><em style={{width:`${item.value}%`,background:item.color}}/></i></div>)}</div>}
+
+export function PageIntro({eyebrow,title,description,icon:Icon,action}:{eyebrow?:string,title:string,description?:string,icon?:LucideIcon,action?:React.ReactNode}){
+ return <section className="page-intro"><div className="page-intro-copy">{Icon&&<i><Icon size={22}/></i>}<div>{eyebrow&&<span>{eyebrow}</span>}<h2>{title}</h2>{description&&<p>{description}</p>}</div></div>{action&&<div className="page-intro-action">{action}</div>}</section>
+}
+
+export function SectionHeader({eyebrow,title,description,action}:{eyebrow?:string,title:string,description?:string,action?:React.ReactNode}){
+ return <header className="section-head"><div>{eyebrow&&<span>{eyebrow}</span>}<h3>{title}</h3>{description&&<p>{description}</p>}</div>{action}</header>
+}
+
+export function ActionTile({href,label,description,icon:Icon,tone="red",badge}:{href:string,label:string,description:string,icon:LucideIcon,tone?:"red"|"blue"|"green"|"amber"|"violet",badge?:string|number}){
+ return <Link href={href} className={cn("action-tile",tone)}><i><Icon size={21}/></i><div><b>{label}</b><span>{description}</span></div>{badge!==undefined&&<em>{badge}</em>}<strong aria-hidden>←</strong></Link>
+}
+
+export function StatusPill({tone="neutral",children}:{tone?:"success"|"warning"|"danger"|"info"|"neutral",children:React.ReactNode}){
+ return <span className={cn("status-pill",tone)}><i/>{children}</span>
+}

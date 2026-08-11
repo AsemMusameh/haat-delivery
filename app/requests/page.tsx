@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
+import { PageIntro } from "@/components/ui";
 
 const types = [
   {
@@ -144,22 +145,13 @@ export default function RequestsPage() {
   return (
     <AppShell title="الطلبات الداخلية">
       <div className="mx-auto max-w-7xl">
-        <section className="rounded-[28px] bg-gradient-to-l from-[#7c0018] via-[#b30b2d] to-[#df3151] p-7 text-white shadow-xl">
-          <span className="text-[10px] font-black text-amber-200">
-            بدون واتساب • متابعة واضحة
-          </span>
-          <h2 className="mt-2 text-3xl font-black">كل طلباتك من مكان واحد</h2>
-          <p className="mt-2 max-w-2xl text-xs leading-6 text-rose-100">
-            اختر نوع الطلب، أرسل التفاصيل، وتابع حالة المعالجة ورد الإدارة
-            مباشرة من المنصة.
-          </p>
-        </section>
+        <PageIntro eyebrow="طلبات موحّدة • متابعة مباشرة" title="كل طلباتك من مكان واحد" description="اختر نوع الطلب، أرسل التفاصيل، وتابع حالة المعالجة ورد الإدارة مباشرة من المنصة." icon={FileQuestion}/>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {types.map(({ id, label, icon: Icon, desc }) => (
             <button
               key={id}
               onClick={() => start(id)}
-              className="card group p-5 text-start transition hover:-translate-y-1 hover:border-rose-200 hover:shadow-lg"
+              className="card card-interactive group p-5 text-start"
             >
               <i className="grid size-11 place-items-center rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)]">
                 <Icon size={21} />
