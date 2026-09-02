@@ -11,10 +11,10 @@ alter table public.notifications add column if not exists kind text not null def
 insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
 values ('company-media','company-media',true,26214400,array['image/jpeg','image/png','image/webp','image/gif','video/mp4','video/webm','video/quicktime'])
 on conflict(id) do update set public=true,file_size_limit=26214400,allowed_mime_types=excluded.allowed_mime_types;
-create policy "employees view community media" on storage.objects for select to authenticated using(bucket_id='company-media');
-create policy "employees upload own community media" on storage.objects for insert to authenticated with check(bucket_id='company-media' and (storage.foldername(name))[1]=auth.uid()::text);
-create policy "employees manage own community media" on storage.objects for update to authenticated using(bucket_id='company-media' and (storage.foldername(name))[1]=auth.uid()::text);
-create policy "employees delete own community media" on storage.objects for delete to authenticated using(bucket_id='company-media' and (storage.foldername(name))[1]=auth.uid()::text);
+create policy "employees view community media" on storage.objects for select to authenticated using (bucket_id='company-media');
+create policy "employees upload own community media" on storage.objects for insert to authenticated with check (bucket_id='company-media' and (storage.foldername(name))[1]=auth.uid()::text);
+create policy "employees manage own community media" on storage.objects for update to authenticated using (bucket_id='company-media' and (storage.foldername(name))[1]=auth.uid()::text);
+create policy "employees delete own community media" on storage.objects for delete to authenticated using (bucket_id='company-media' and (storage.foldername(name))[1]=auth.uid()::text);
 
 create or replace function public.notify_company_post() returns trigger
 language plpgsql security definer set search_path=public as $$

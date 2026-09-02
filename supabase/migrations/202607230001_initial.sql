@@ -101,28 +101,28 @@ alter table attachments enable row level security; alter table notifications ena
 alter table push_delivery_logs enable row level security; alter table audit_logs enable row level security;
 
 create policy "departments visible to signed users" on departments for select to authenticated using (true);
-create policy "admins manage departments" on departments for all to authenticated using (current_role()='admin') with check(current_role()='admin');
-create policy "users view self managers view all supervisors dept" on profiles for select to authenticated using (id=auth.uid() or current_role() in ('manager','admin') or (current_role()='supervisor' and department_id=current_department()));
-create policy "users update own basic profile" on profiles for update to authenticated using(id=auth.uid()) with check(id=auth.uid());
-create policy "admins manage profiles" on profiles for all to authenticated using(current_role()='admin') with check(current_role()='admin');
-create policy "targeted announcements only" on announcements for select to authenticated using(can_view_announcement(id));
-create policy "managers manage announcements" on announcements for all to authenticated using(current_role() in ('manager','admin')) with check(current_role() in ('manager','admin'));
-create policy "supervisors create own announcements" on announcements for insert to authenticated with check(current_role()='supervisor' and author_id=auth.uid());
-create policy "supervisors update own announcements" on announcements for update to authenticated using(current_role()='supervisor' and author_id=auth.uid()) with check(current_role()='supervisor' and author_id=auth.uid());
-create policy "view targets for visible announcements" on announcement_targets for select to authenticated using(can_view_announcement(announcement_id) or current_role() in ('manager','admin'));
-create policy "managers manage targets" on announcement_targets for all to authenticated using(current_role() in ('manager','admin')) with check(current_role() in ('manager','admin'));
-create policy "supervisors target own department" on announcement_targets for insert to authenticated with check(current_role()='supervisor' and target_type='department' and department_id=current_department() and exists(select 1 from announcements a where a.id=announcement_id and a.author_id=auth.uid()));
-create policy "users read own reads" on announcement_reads for select to authenticated using(user_id=auth.uid() or current_role() in ('manager','admin') or (current_role()='supervisor' and exists(select 1 from profiles p where p.id=user_id and p.department_id=current_department())));
-create policy "users confirm own read" on announcement_reads for insert to authenticated with check(user_id=auth.uid() and can_view_announcement(announcement_id));
-create policy "users update own read" on announcement_reads for update to authenticated using(user_id=auth.uid()) with check(user_id=auth.uid());
-create policy "own bookmarks" on announcement_bookmarks for all to authenticated using(user_id=auth.uid()) with check(user_id=auth.uid() and can_view_announcement(announcement_id));
-create policy "visible attachments" on attachments for select to authenticated using(can_view_announcement(announcement_id));
-create policy "publishers manage attachments" on attachments for all to authenticated using(current_role() in ('manager','admin') or exists(select 1 from announcements a where a.id=announcement_id and a.author_id=auth.uid())) with check(current_role() in ('manager','admin','supervisor'));
-create policy "own notifications" on notifications for select to authenticated using(user_id=auth.uid());
-create policy "mark own notifications" on notifications for update to authenticated using(user_id=auth.uid()) with check(user_id=auth.uid());
-create policy "own push subscriptions" on push_subscriptions for all to authenticated using(user_id=auth.uid()) with check(user_id=auth.uid());
-create policy "managers view delivery logs" on push_delivery_logs for select to authenticated using(current_role() in ('manager','admin'));
-create policy "admins view audit" on audit_logs for select to authenticated using(current_role()='admin');
+create policy "admins manage departments" on departments for all to authenticated using (public.current_role()='admin') with check (public.current_role()='admin');
+create policy "users view self managers view all supervisors dept" on profiles for select to authenticated using (id=auth.uid() or public.current_role() in ('manager','admin') or (public.current_role()='supervisor' and department_id=current_department()));
+create policy "users update own basic profile" on profiles for update to authenticated using (id=auth.uid()) with check (id=auth.uid());
+create policy "admins manage profiles" on profiles for all to authenticated using (public.current_role()='admin') with check (public.current_role()='admin');
+create policy "targeted announcements only" on announcements for select to authenticated using (can_view_announcement(id));
+create policy "managers manage announcements" on announcements for all to authenticated using (public.current_role() in ('manager','admin')) with check (public.current_role() in ('manager','admin'));
+create policy "supervisors create own announcements" on announcements for insert to authenticated with check (public.current_role()='supervisor' and author_id=auth.uid());
+create policy "supervisors update own announcements" on announcements for update to authenticated using (public.current_role()='supervisor' and author_id=auth.uid()) with check (public.current_role()='supervisor' and author_id=auth.uid());
+create policy "view targets for visible announcements" on announcement_targets for select to authenticated using (can_view_announcement(announcement_id) or public.current_role() in ('manager','admin'));
+create policy "managers manage targets" on announcement_targets for all to authenticated using (public.current_role() in ('manager','admin')) with check (public.current_role() in ('manager','admin'));
+create policy "supervisors target own department" on announcement_targets for insert to authenticated with check (public.current_role()='supervisor' and target_type='department' and department_id=current_department() and exists(select 1 from announcements a where a.id=announcement_id and a.author_id=auth.uid()));
+create policy "users read own reads" on announcement_reads for select to authenticated using (user_id=auth.uid() or public.current_role() in ('manager','admin') or (public.current_role()='supervisor' and exists(select 1 from profiles p where p.id=user_id and p.department_id=current_department())));
+create policy "users confirm own read" on announcement_reads for insert to authenticated with check (user_id=auth.uid() and can_view_announcement(announcement_id));
+create policy "users update own read" on announcement_reads for update to authenticated using (user_id=auth.uid()) with check (user_id=auth.uid());
+create policy "own bookmarks" on announcement_bookmarks for all to authenticated using (user_id=auth.uid()) with check (user_id=auth.uid() and can_view_announcement(announcement_id));
+create policy "visible attachments" on attachments for select to authenticated using (can_view_announcement(announcement_id));
+create policy "publishers manage attachments" on attachments for all to authenticated using (public.current_role() in ('manager','admin') or exists(select 1 from announcements a where a.id=announcement_id and a.author_id=auth.uid())) with check (public.current_role() in ('manager','admin','supervisor'));
+create policy "own notifications" on notifications for select to authenticated using (user_id=auth.uid());
+create policy "mark own notifications" on notifications for update to authenticated using (user_id=auth.uid()) with check (user_id=auth.uid());
+create policy "own push subscriptions" on push_subscriptions for all to authenticated using (user_id=auth.uid()) with check (user_id=auth.uid());
+create policy "managers view delivery logs" on push_delivery_logs for select to authenticated using (public.current_role() in ('manager','admin'));
+create policy "admins view audit" on audit_logs for select to authenticated using (public.current_role()='admin');
 
 -- الموظف يستطيع تعديل الحقول الشخصية فقط؛ يمنع تصعيد الدور أو تغيير القسم من المتصفح.
 revoke update on public.profiles from authenticated;
@@ -130,9 +130,9 @@ grant update (full_name,avatar_url,notification_enabled,updated_at) on public.pr
 
 insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types) values ('announcement-attachments','announcement-attachments',false,10485760,array['application/pdf','image/jpeg','image/png','image/webp','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']) on conflict(id) do nothing;
 insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types) values ('avatars','avatars',false,3145728,array['image/jpeg','image/png','image/webp']) on conflict(id) do nothing;
-create policy "authenticated upload announcement files" on storage.objects for insert to authenticated with check(bucket_id='announcement-attachments' and current_role() in ('supervisor','manager','admin'));
-create policy "targeted users download files" on storage.objects for select to authenticated using(bucket_id='announcement-attachments' and can_view_announcement((storage.foldername(name))[1]::uuid));
-create policy "users manage own avatar" on storage.objects for all to authenticated using(bucket_id='avatars' and (storage.foldername(name))[1]=auth.uid()::text) with check(bucket_id='avatars' and (storage.foldername(name))[1]=auth.uid()::text);
+create policy "authenticated upload announcement files" on storage.objects for insert to authenticated with check (bucket_id='announcement-attachments' and public.current_role() in ('supervisor','manager','admin'));
+create policy "targeted users download files" on storage.objects for select to authenticated using (bucket_id='announcement-attachments' and can_view_announcement((storage.foldername(name))[1]::uuid));
+create policy "users manage own avatar" on storage.objects for all to authenticated using (bucket_id='avatars' and (storage.foldername(name))[1]=auth.uid()::text) with check (bucket_id='avatars' and (storage.foldername(name))[1]=auth.uid()::text);
 
 create or replace view public.announcement_report with (security_invoker=true) as
 select a.id,a.title,count(distinct p.id) recipient_count,count(distinct r.user_id) read_count,

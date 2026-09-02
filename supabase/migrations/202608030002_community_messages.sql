@@ -47,15 +47,15 @@ alter table public.direct_messages enable row level security;
 
 create policy "employees view posts" on public.company_posts for select to authenticated using (true);
 create policy "employees create posts" on public.company_posts for insert to authenticated with check (author_id=auth.uid());
-create policy "authors manage posts" on public.company_posts for update to authenticated using (author_id=auth.uid() or current_role() in ('manager','admin')) with check (author_id=auth.uid() or current_role() in ('manager','admin'));
-create policy "authors delete posts" on public.company_posts for delete to authenticated using (author_id=auth.uid() or current_role() in ('manager','admin'));
+create policy "authors manage posts" on public.company_posts for update to authenticated using (author_id=auth.uid() or public.current_role() in ('manager','admin')) with check (author_id=auth.uid() or public.current_role() in ('manager','admin'));
+create policy "authors delete posts" on public.company_posts for delete to authenticated using (author_id=auth.uid() or public.current_role() in ('manager','admin'));
 create policy "employees view reactions" on public.post_reactions for select to authenticated using (true);
 create policy "employees react" on public.post_reactions for insert to authenticated with check (user_id=auth.uid());
 create policy "employees update reaction" on public.post_reactions for update to authenticated using (user_id=auth.uid()) with check (user_id=auth.uid());
 create policy "employees remove reaction" on public.post_reactions for delete to authenticated using (user_id=auth.uid());
 create policy "employees view comments" on public.post_comments for select to authenticated using (true);
 create policy "employees comment" on public.post_comments for insert to authenticated with check (author_id=auth.uid());
-create policy "authors manage comments" on public.post_comments for delete to authenticated using (author_id=auth.uid() or current_role() in ('manager','admin'));
+create policy "authors manage comments" on public.post_comments for delete to authenticated using (author_id=auth.uid() or public.current_role() in ('manager','admin'));
 create policy "participants view messages" on public.direct_messages for select to authenticated using (sender_id=auth.uid() or recipient_id=auth.uid());
 create policy "employees send messages" on public.direct_messages for insert to authenticated with check (sender_id=auth.uid());
 create policy "recipients mark messages read" on public.direct_messages for update to authenticated using (recipient_id=auth.uid()) with check (recipient_id=auth.uid());
