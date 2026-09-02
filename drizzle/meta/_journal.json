@@ -1,0 +1,62 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1786142263642,
+      "tag": "0000_mean_skin",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1786208334251,
+      "tag": "0001_breezy_violations",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1786212853243,
+      "tag": "0002_cold_leper_queen",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1786216784000,
+      "tag": "0003_update_voice_replies",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1786216969000,
+      "tag": "0004_remove_voice_no_answer",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1786226793371,
+      "tag": "0005_vengeful_deathstrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1786227061017,
+      "tag": "0006_milky_rage",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1788345600000,
+      "tag": "0007_haat_ai_qa",
+      "breakpoints": true
+    }
+  ]
+}

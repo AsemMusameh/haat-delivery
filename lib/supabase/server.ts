@@ -1,0 +1,5 @@
+import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+export function adminClient(){const url=process.env.NEXT_PUBLIC_SUPABASE_URL,key=process.env.SUPABASE_SERVICE_ROLE_KEY;if(!url||!key)throw new Error("Supabase server environment is not configured");return createAdminClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}})}
+export async function requirePublisher(){if(!process.env.NEXT_PUBLIC_SUPABASE_URL)return null;const jar=await cookies();const s=createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,{cookies:{getAll:()=>jar.getAll(),setAll:()=>{}}});const{data:{user}}=await s.auth.getUser();if(!user)throw new Error("UNAUTHORIZED");const admin=adminClient();const{data}=await admin.from("profiles").select("role,department_id,is_active").eq("id",user.id).single();if(!data?.is_active||!["supervisor","manager","admin"].includes(data.role))throw new Error("FORBIDDEN");return{user,profile:data,admin}}

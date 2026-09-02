@@ -1,0 +1,1 @@
+export function Logo({compact=false}:{compact?:boolean}){return <div className="brand-lockup"><span className="brand-mark"><img src="/haat-logo.png" alt="HAAT"/></span>{!compact&&<div><b>HAAT Employee Hub</b><span>Internal Operations</span></div>}</div>}
