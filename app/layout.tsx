@@ -3,6 +3,8 @@ import "leaflet/dist/leaflet.css";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://haat-employee-hub.montaser-jabren.chatgpt.site"),
   title: "HAAT Employee Hub",
@@ -34,8 +36,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const env = (name: string) => process.env[name] ?? "";
+  const runtimeConfig = JSON.stringify({
+    supabaseUrl: env("NEXT_PUBLIC_SUPABASE_URL"),
+    supabaseAnonKey: env("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
+  }).replace(/</g, "\\u003c");
+
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `window.__HAAT_RUNTIME_CONFIG__=${runtimeConfig}` }} />
+      </head>
       <body><Providers>{children}</Providers></body>
     </html>
   );

@@ -11,6 +11,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { demoNotifications } from "@/lib/demo-data";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { CelebrationStrip } from "./celebration-strip";
 import { useLocale } from "./locale-provider";
@@ -23,6 +24,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
   const [open, setOpen] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [signingOut, setSigningOut] = useState(false);
   const { theme, toggle } = useTheme();
   const { locale, setLocale, t } = useLocale();
   const ar = locale === "ar";
@@ -90,6 +92,16 @@ export function AppShell({ children, title, admin = false, action }: { children:
     router.push(href);
   };
 
+  const signOut = async () => {
+    if (signingOut) return;
+    setSigningOut(true);
+    try {
+      if (isSupabaseConfigured) await createClient()?.auth.signOut({ scope: "local" });
+    } finally {
+      window.location.replace("/login");
+    }
+  };
+
   return (
     <div className="app-shell min-h-screen" data-locale={locale}>
       <aside className={cn("sidebar fixed inset-y-0 z-50 flex w-[282px] flex-col p-3 transition-transform duration-300 lg:translate-x-0", open ? "translate-x-0" : ar ? "translate-x-full lg:translate-x-0" : "-translate-x-full lg:translate-x-0")} style={ar ? { right: 0, left: "auto" } : { left: 0, right: "auto" }}>
@@ -116,7 +128,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
         </nav>
         <div className="sidebar-footer">
           <Link href="/profile" className="sidebar-user"><span className="sidebar-avatar">A<i /></span><div className="min-w-0 flex-1"><b className="block truncate text-xs">Asem Msameh</b><span className="mt-0.5 block truncate text-[10px]">Customer Chat</span></div>{ar ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}</Link>
-          <Link href="/login" className="sidebar-logout"><LogOut size={16} /><span>{t.logout}</span></Link>
+          <button type="button" className="sidebar-logout w-full" onClick={signOut} disabled={signingOut}><LogOut size={16} /><span>{signingOut ? (ar ? "جارٍ تسجيل الخروج..." : "Signing out...") : t.logout}</span></button>
         </div>
       </aside>
 
