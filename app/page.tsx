@@ -16,7 +16,7 @@ export default function Home() {
           <nav aria-label="التنقل الرئيسي">
             <a href="#news">الأخبار</a><a href="#about">عن HAAT</a><a href="#numbers">أرقامنا</a>
           </nav>
-          <div className="public-actions"><button type="button" className="language-pill"><Globe2 size={16} /> EN</button><Link href="/login" className="employee-login">دخول الموظفين <ArrowLeft size={17} /></Link></div>
+          <div className="public-actions"><Link href="/login" className="employee-login">دخول الموظفين <ArrowLeft size={17} /></Link></div>
         </div>
       </header>
 
