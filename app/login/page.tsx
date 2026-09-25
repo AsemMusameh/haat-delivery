@@ -172,7 +172,7 @@ export default function Login() {
     await new Promise((resolve) => setTimeout(resolve, 520));
     rememberEmail(demoEmail);
     toast.success(isArabic ? `تم الدخول باستخدام ${role === "manager" ? "حساب المدير" : "حساب الموظف"}` : `Signed in with the ${role} demo account`);
-    router.push(role === "manager" ? "/admin" : "/dashboard");
+    window.location.assign(role === "manager" ? "/admin" : "/dashboard");
   };
 
   const submit = async (event: React.FormEvent) => {
@@ -188,7 +188,7 @@ export default function Login() {
         await new Promise((resolve) => setTimeout(resolve, 650));
         rememberEmail(login);
         toast.success(isArabic ? "تم تسجيل الدخول بنجاح" : "Signed in successfully");
-        router.push(login === DEFAULT_EMAIL ? "/admin" : "/dashboard");
+        window.location.assign(login === DEFAULT_EMAIL ? "/admin" : "/dashboard");
         return;
       }
 
@@ -217,7 +217,7 @@ export default function Login() {
       if (!isSupabaseConfigured) {
         await new Promise((resolve) => setTimeout(resolve, 650));
         toast.success(isArabic ? "تم تسجيل دخول Google في الوضع التجريبي" : "Google demo sign-in completed");
-        router.push("/dashboard");
+        window.location.assign("/dashboard");
         return;
       }
       const { error } = await createClient()!.auth.signInWithOAuth({
@@ -240,7 +240,7 @@ export default function Login() {
       if (!isSupabaseConfigured) {
         await new Promise((resolve) => setTimeout(resolve, 650));
         toast.success(isArabic ? "تم التحقق والدخول في الوضع التجريبي" : "Email-link demo verification completed");
-        router.push("/dashboard");
+        window.location.assign("/dashboard");
         return;
       }
       const { error } = await createClient()!.auth.signInWithOtp({
