@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
 
-const DOMAIN_FALLBACK = "haat.delivery";
+const COMPANY_DOMAIN = "haat.delivery";
 
 function safeNext(value: string | null) {
   return value && value.startsWith("/") && !value.startsWith("//") ? value : "/dashboard";
@@ -35,10 +35,7 @@ export async function GET(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
   const domain = user?.email?.split("@")[1]?.toLowerCase();
-  const allowedDomains = (process.env.ALLOWED_EMAIL_DOMAINS ?? process.env.NEXT_PUBLIC_ALLOWED_EMAIL_DOMAINS ?? DOMAIN_FALLBACK)
-    .split(",")
-    .map((item) => item.trim().toLowerCase())
-    .filter(Boolean);
+  const allowedDomains = [COMPANY_DOMAIN];
 
   if (!domain || !allowedDomains.includes(domain)) {
     await supabase.auth.signOut();

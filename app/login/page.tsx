@@ -10,7 +10,7 @@ import { demoEmployees, managerEmails, rosterEmails } from "@/lib/demo-data";
 
 const DEFAULT_PASSWORD = "123456789";
 const DEFAULT_EMAIL = "mohammad.moayyad@haat.delivery";
-const DOMAIN_FALLBACK = "haat.delivery";
+const COMPANY_DOMAIN = "haat.delivery";
 
 export default function Login() {
   const { locale, setLocale } = useLocale();
@@ -44,7 +44,7 @@ export default function Login() {
   const isAllowedEmail = (value: string) => {
     if (!value.includes("@")) return true;
     const domain = value.split("@")[1]?.toLowerCase();
-    return (process.env.NEXT_PUBLIC_ALLOWED_EMAIL_DOMAINS ?? DOMAIN_FALLBACK).split(",").map((item) => item.trim().toLowerCase()).filter(Boolean).includes(domain);
+    return domain === COMPANY_DOMAIN;
   };
 
   const rememberEmail = (value: string) => {
