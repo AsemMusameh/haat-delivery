@@ -44,6 +44,10 @@ export async function ensureAccountStore() {
     db.prepare("CREATE INDEX IF NOT EXISTS portal_sessions_user_idx ON portal_sessions (user_id, expires_at)"),
     db.prepare(`CREATE TABLE IF NOT EXISTS portal_profiles (
       user_id TEXT PRIMARY KEY,phone TEXT,updated_at TEXT NOT NULL)`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS portal_user_permissions (
+      user_id TEXT NOT NULL,permission_key TEXT NOT NULL,allowed INTEGER NOT NULL,updated_at TEXT NOT NULL,
+      PRIMARY KEY (user_id,permission_key))`),
+    db.prepare("CREATE INDEX IF NOT EXISTS portal_user_permissions_user_idx ON portal_user_permissions (user_id)"),
   ]);
   await db.prepare("DELETE FROM portal_sessions WHERE expires_at < ?").bind(new Date().toISOString()).run();
 }
@@ -101,4 +105,17 @@ export async function savePhone(userId: string, phone: string) {
   await ensureAccountStore();
   await database().prepare(`INSERT INTO portal_profiles (user_id,phone,updated_at) VALUES (?,?,?)
     ON CONFLICT(user_id) DO UPDATE SET phone=excluded.phone,updated_at=excluded.updated_at`).bind(userId,phone || null,new Date().toISOString()).run();
+}
+
+export async function getUserPermissions(userId: string) {
+  await ensureAccountStore();
+  const result = await database().prepare("SELECT permission_key permissionKey,allowed FROM portal_user_permissions WHERE user_id=?").bind(userId).all<{permissionKey:string;allowed:number}>();
+  return Object.fromEntries((result.results || []).map((row) => [row.permissionKey,Boolean(row.allowed)]));
+}
+
+export async function saveUserPermission(userId:string,permissionKey:string,allowed:boolean) {
+  await ensureAccountStore();
+  await database().prepare(`INSERT INTO portal_user_permissions (user_id,permission_key,allowed,updated_at) VALUES (?,?,?,?)
+    ON CONFLICT(user_id,permission_key) DO UPDATE SET allowed=excluded.allowed,updated_at=excluded.updated_at`)
+    .bind(userId,permissionKey,allowed?1:0,new Date().toISOString()).run();
 }

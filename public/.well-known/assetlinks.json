@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "delivery.haat.tulkarmhub",
+        "sha256_cert_fingerprints": ["AF:F8:1C:DA:F9:C2:28:D7:B4:6C:B5:76:26:80:7B:EF:D8:20:40:11:32:99:D7:F4:DF:62:35:A1:E8:16:9A:78"]
+      }
+    }]

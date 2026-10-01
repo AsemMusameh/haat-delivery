@@ -6,6 +6,8 @@ import { AppShell } from "@/components/app-shell";
 import { useLocale } from "@/components/locale-provider";
 import { PageIntro } from "@/components/ui";
 import { defaultTools, type ToolColor, type ToolIcon, type WorkTool } from "@/lib/content-defaults";
+import { demoEmployees } from "@/lib/demo-data";
+import { useProfile } from "@/lib/hooks";
 
 const icons: Record<ToolIcon, typeof Gauge> = { dashboard: Gauge, store: Store, coupon: BadgePercent, sheet: FileSpreadsheet, form: ClipboardList, warning: TriangleAlert, device: MonitorCog, link: Link2 };
 const colors: Record<ToolColor, string> = { rose: "from-rose-600 to-red-700", orange: "from-orange-500 to-amber-600", pink: "from-fuchsia-600 to-pink-600", green: "from-emerald-600 to-green-700", blue: "from-sky-600 to-blue-700", purple: "from-violet-600 to-purple-700", slate: "from-slate-700 to-slate-900" };
@@ -15,6 +17,13 @@ export default function AppsPage() {
   const ar = locale === "ar";
   const [query, setQuery] = useState("");
   const [tools, setTools] = useState<WorkTool[]>(defaultTools);
+  const fallbackProfile = useProfile();
+  const [role, setRole] = useState(fallbackProfile.role);
+
+  useEffect(() => {
+    const current = demoEmployees.find((employee) => employee.id === window.localStorage.getItem("haat-current-user"));
+    if (current) setRole(current.role);
+  }, []);
 
   useEffect(() => {
     fetch("/api/content", { cache: "no-store" })
@@ -25,9 +34,10 @@ export default function AppsPage() {
 
   const visibleTools = useMemo(() => {
     const value = query.trim().toLowerCase();
-    if (!value) return tools;
-    return tools.filter((tool) => `${tool.titleAr} ${tool.titleEn} ${tool.descriptionAr} ${tool.descriptionEn}`.toLowerCase().includes(value));
-  }, [query, tools]);
+    const roleTools = tools.filter((tool) => !["voicenter", "customer-care-form"].includes(tool.id) || role === "supervisor");
+    if (!value) return roleTools;
+    return roleTools.filter((tool) => `${tool.titleAr} ${tool.titleEn} ${tool.descriptionAr} ${tool.descriptionEn}`.toLowerCase().includes(value));
+  }, [query, role, tools]);
 
   return <AppShell title={ar ? "الروابط والاستخدام" : "Links & Tools"}>
     <div className="mx-auto max-w-6xl">

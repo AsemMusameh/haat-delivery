@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sessionUser } from "@/lib/account-store";
 import { demoEmployees } from "@/lib/demo-data";
 import { createDailyReport, createMonthlyReport, deleteReport, listDailyReports, listMonthlyReports, reportOwner } from "@/lib/report-store";
+import type { ReportCategory } from "@/lib/report-store";
 
 const bearer = (request: NextRequest) => request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") || null;
 const response = (data: unknown, status = 200) => NextResponse.json(data, { status, headers: { "Cache-Control": "no-store" } });
@@ -39,13 +40,14 @@ export async function POST(request: NextRequest) {
     if (type === "daily") {
       if (profile.role !== "supervisor") throw new Error("FORBIDDEN");
       const reportDate = clean(body.reportDate, 10);
+      const reportType = clean(body.reportType, 20) as ReportCategory;
       const shift = clean(body.shift, 30);
       const title = clean(body.title, 120);
       const summary = clean(body.summary, 4000);
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(reportDate) || !shift || !title || !summary) return response({ error: "أكمل الحقول المطلوبة" }, 422);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(reportDate) || !["voice","connecteam","chat"].includes(reportType) || !shift || !title || !summary) return response({ error: "أكمل الحقول المطلوبة" }, 422);
       const report = await createDailyReport({
         authorId: profile.id, authorName: profile.full_name, department: profile.department?.name || "HAAT",
-        reportDate, shift, title, summary, achievements: clean(body.achievements, 2500),
+        reportDate, reportType, shift, title, summary, achievements: clean(body.achievements, 2500),
         challenges: clean(body.challenges, 2500), notes: clean(body.notes, 2500),
       });
       return response({ report }, 201);

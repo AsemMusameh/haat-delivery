@@ -3,11 +3,7 @@
 # dependencies
 /node_modules
 /.android-builder/
-/android/.gradle
-/android/app/build
-/android/build
-/android/*.jks
-/android/*.keystore
+/android/
 /.pnp
 .pnp.*
 .yarn/*

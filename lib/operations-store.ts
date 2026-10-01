@@ -40,6 +40,8 @@ export async function ensureOperationsStore() {
       key TEXT PRIMARY KEY,label TEXT NOT NULL,value TEXT NOT NULL,group_name TEXT NOT NULL,updated_at TEXT NOT NULL)`),
     database.prepare(`CREATE TABLE IF NOT EXISTS coverage_areas (
       code INTEGER PRIMARY KEY,name TEXT NOT NULL,name_ar TEXT NOT NULL,x INTEGER NOT NULL,y INTEGER NOT NULL,status TEXT NOT NULL DEFAULT 'active',updated_at TEXT NOT NULL)`),
+    database.prepare(`CREATE TABLE IF NOT EXISTS coverage_area_contacts (
+      code INTEGER PRIMARY KEY,phone TEXT NOT NULL DEFAULT '',updated_at TEXT NOT NULL)`),
   ]);
   const stamp = now();
   const defaults = [
@@ -52,9 +54,15 @@ export async function ensureOperationsStore() {
     ["public_area_count","عدد المناطق المخدومة","+20","الصفحة العامة"],
     ["public_support_hours","ساعات الدعم","24/7","الصفحة العامة"],
     ["public_satisfaction","نسبة رضا الخدمة","98%","الصفحة العامة"],
+    ["ad_enabled","إظهار الإعلان","لا","الإعلانات"],
+    ["ad_title","عنوان الإعلان","","الإعلانات"],
+    ["ad_body","نص الإعلان","","الإعلانات"],
+    ["ad_link","رابط الإعلان (اختياري)","","الإعلانات"],
   ];
   await database.batch(defaults.map(([key,label,value,group]) => database.prepare("INSERT OR IGNORE INTO portal_settings (key,label,value,group_name,updated_at) VALUES (?,?,?,?,?)").bind(key,label,value,group,stamp)));
   await database.batch(defaultCoverageAreas.map(area=>database.prepare("INSERT OR IGNORE INTO coverage_areas (code,name,name_ar,x,y,status,updated_at) VALUES (?,?,?,?,?,?,?)").bind(area.code,area.name,area.nameAr,area.x,area.y,area.status||"active",stamp)));
+  const defaultPhones: Record<number,string> = {1:"+972545026965",2:"+972545026965",4:"+972545026965",5:"+972549580852",7:"+972549580852",13:"+972549580852",8:"+972544732050",12:"+972544732050",9:"+972544371004",10:"+972547905048",16:"+972542785813",19:"+972542785813",20:"+972543687217"};
+  await database.batch(Object.entries(defaultPhones).map(([code,phone])=>database.prepare("INSERT OR IGNORE INTO coverage_area_contacts (code,phone,updated_at) VALUES (?,?,?)").bind(Number(code),phone,stamp)));
 }
 
 export async function listRequests(userKey?: string) {
@@ -80,6 +88,9 @@ export async function saveCourier(input: Partial<Courier> & Pick<Courier,"name"|
 export async function deleteCourier(id:string) { await ensureOperationsStore(); await db().prepare("DELETE FROM couriers WHERE id=?").bind(id).run(); }
 export async function listSettings() { await ensureOperationsStore(); const result=await db().prepare("SELECT key,label,value,group_name groupName,updated_at updatedAt FROM portal_settings ORDER BY group_name,label").all<{key:string;label:string;value:string;groupName:string;updatedAt:string}>(); return result.results||[]; }
 export async function saveSettings(items:{key:string;label:string;value:string;groupName:string}[]) { await ensureOperationsStore(); const stamp=now(); await db().batch(items.map(item=>db().prepare(`INSERT INTO portal_settings (key,label,value,group_name,updated_at) VALUES (?,?,?,?,?) ON CONFLICT(key) DO UPDATE SET label=excluded.label,value=excluded.value,group_name=excluded.group_name,updated_at=excluded.updated_at`).bind(item.key,item.label,item.value,item.groupName,stamp))); }
-export async function listCoverageAreas() { await ensureOperationsStore(); const result=await db().prepare("SELECT code,name,name_ar nameAr,x,y,status FROM coverage_areas ORDER BY code").all<CoverageArea>(); return result.results||[]; }
-export async function saveCoverageArea(area:CoverageArea) { await ensureOperationsStore(); await db().prepare(`INSERT INTO coverage_areas (code,name,name_ar,x,y,status,updated_at) VALUES (?,?,?,?,?,?,?) ON CONFLICT(code) DO UPDATE SET name=excluded.name,name_ar=excluded.name_ar,x=excluded.x,y=excluded.y,status=excluded.status,updated_at=excluded.updated_at`).bind(area.code,area.name,area.nameAr,area.x,area.y,area.status||"active",now()).run(); }
-export async function deleteCoverageArea(code:number) { await ensureOperationsStore(); await db().prepare("DELETE FROM coverage_areas WHERE code=?").bind(code).run(); }
+export async function listCoverageAreas() { await ensureOperationsStore(); const result=await db().prepare("SELECT a.code,a.name,a.name_ar nameAr,a.x,a.y,a.status,COALESCE(c.phone,'') phone FROM coverage_areas a LEFT JOIN coverage_area_contacts c ON c.code=a.code ORDER BY a.code").all<CoverageArea>(); return result.results||[]; }
+export async function saveCoverageArea(area:CoverageArea) { await ensureOperationsStore(); const stamp=now(); await db().batch([
+  db().prepare(`INSERT INTO coverage_areas (code,name,name_ar,x,y,status,updated_at) VALUES (?,?,?,?,?,?,?) ON CONFLICT(code) DO UPDATE SET name=excluded.name,name_ar=excluded.name_ar,x=excluded.x,y=excluded.y,status=excluded.status,updated_at=excluded.updated_at`).bind(area.code,area.name,area.nameAr,area.x,area.y,area.status||"active",stamp),
+  db().prepare(`INSERT INTO coverage_area_contacts (code,phone,updated_at) VALUES (?,?,?) ON CONFLICT(code) DO UPDATE SET phone=excluded.phone,updated_at=excluded.updated_at`).bind(area.code,area.phone||"",stamp),
+]); }
+export async function deleteCoverageArea(code:number) { await ensureOperationsStore(); await db().batch([db().prepare("DELETE FROM coverage_area_contacts WHERE code=?").bind(code),db().prepare("DELETE FROM coverage_areas WHERE code=?").bind(code)]); }

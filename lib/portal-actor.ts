@@ -12,7 +12,7 @@ export type PortalActor = {
 
 export async function getPortalActor(): Promise<PortalActor> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    return { id: "demo-u1", employeeId: "1001", fullName: "Asem Msameh", department: "تشات الزبائن", role: "admin" };
+    return { id: "demo-u1", employeeId: "1001", fullName: "Asem Musameh", department: "تشات الزبائن", role: "admin" };
   }
   const jar = await cookies();
   const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {

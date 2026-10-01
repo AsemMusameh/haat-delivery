@@ -38,6 +38,7 @@ export async function ensureContentStore() {
     ...defaultReplies.map((item) => database.prepare(`INSERT OR IGNORE INTO reply_templates
       (id,department,content_type,category,title,body_ar,body_he,body_en,sort_order,is_active,created_at,updated_at)
       VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`).bind(item.id, item.department, item.contentType ?? "macro", item.category, item.title, item.bodyAr, item.bodyHe, item.bodyEn, item.sortOrder, item.isActive ? 1 : 0, stamp, stamp)),
+    database.prepare("UPDATE work_tools SET url=?,updated_at=? WHERE id='customer-care-form' AND url LIKE '%/viewform'").bind("https://docs.google.com/forms/u/1/d/e/1FAIpQLSfbzLrzZFd1uaZycA2Hg3SK0tL40jtDWyfsrYdKAdhaDjPhow/formResponse", stamp),
   ]);
 }
 

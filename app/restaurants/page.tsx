@@ -8,44 +8,17 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { useLocale } from "@/components/locale-provider";
+import { mcdonaldsBranches } from "@/lib/mcdonalds-branches";
 
 type Contact = { name:string; phone:string; role?:string };
 type Branch = { number:number; name:string; primary?:Contact; supervisor:Contact };
 
-const branches:Branch[] = [
-  {number:49,name:"Haifa Mall",supervisor:{name:"Isra Haj",phone:"050-9013822"}},
-  {number:63,name:"City Center, Haifa",primary:{name:"Hadil Sheikh Ahmad",phone:"054-9960655",role:"Restaurant Manager"},supervisor:{name:"Omer Rolnitsky",phone:"054-7241135"}},
-  {number:71,name:"Grand Canyon Haifa – Floor 1",primary:{name:"Khaled Amriya",phone:"050-3048631",role:"Restaurant Manager"},supervisor:{name:"Asraa Daroubi",phone:"054-3225530"}},
-  {number:74,name:"Hatzrot Jaffa",supervisor:{name:"Wiam Aboy",phone:"052-7701509"}},
-  {number:79,name:"Hadar Haifa",primary:{name:"Omri Huash",phone:"052-5483199",role:"Branch Supervisor"},supervisor:{name:"Isra Haj",phone:"050-9013822"}},
-  {number:103,name:"Karmiel Center",primary:{name:"Razan Khawalad",phone:"054-4406428",role:"Restaurant Manager"},supervisor:{name:"Balsam Azaizeh",phone:"054-9830338"}},
-  {number:107,name:"Wolfson Holon",primary:{name:"Ahmad Makawi",phone:"053-6220791",role:"Branch Supervisor"},supervisor:{name:"Amran Mjahad",phone:"054-8387174"}},
-  {number:119,name:"Tel Hanan (Kosher)",primary:{name:"Miriam Rana Kanaan",phone:"055-9800826",role:"Branch Supervisor"},supervisor:{name:"Hekmat Saka",phone:"050-6708483"}},
-  {number:122,name:"Har Yona, Nof HaGalil",supervisor:{name:"Mustafa Yosef",phone:"052-2896319"}},
-  {number:144,name:"Dodge Center, Nof HaGalil",primary:{name:"Mias Abu Ahmad",phone:"058-5752545",role:"Branch Supervisor"},supervisor:{name:"Ganit Mahali",phone:"054-9300922"}},
-  {number:154,name:"Sakhnin",primary:{name:"Jamil Nasser",phone:"054-4546135",role:"FIRST"},supervisor:{name:"Fahim Abu Younes",phone:"054-2399547"}},
-  {number:164,name:"Kochav Ya’ir",primary:{name:"Hiba Masarwa",phone:"052-5003383",role:"Restaurant Manager"},supervisor:{name:"Liat Shkouri",phone:"050-4443063"}},
-  {number:183,name:"Azrieli Mall, Acre",primary:{name:"Sandra Makhlouf",phone:"058-4783666",role:"Branch Supervisor"},supervisor:{name:"Mustafa Yosef",phone:"052-2896319"}},
-  {number:211,name:"Nazareth – Church of the Annunciation",primary:{name:"Ragad Mansour",phone:"052-8635453",role:"Restaurant Manager"},supervisor:{name:"Ibrahim Hamoudeh",phone:"054-6075041"}},
-  {number:220,name:"Star Nahariya (Kosher)",primary:{name:"Hayat Haboush",phone:"050-7703994",role:"Restaurant Manager"},supervisor:{name:"Noy Zaguri",phone:"054-6495217"}},
-  {number:223,name:"Planet Jerusalem",primary:{name:"Bilal Sub Laban",phone:"053-8870799",role:"Restaurant Manager"},supervisor:{name:"Amran Mjahad",phone:"054-8387174"}},
-  {number:242,name:"Umm al-Fahm Seven",primary:{name:"Lama Mahamid",phone:"054-3199742",role:"Branch Supervisor"},supervisor:{name:"Hanan Ali Hussein",phone:"052-8922897"}},
-  {number:243,name:"Big Yarka",primary:{name:"Hanan Lababidi",phone:"050-3358818",role:"Restaurant Manager"},supervisor:{name:"Ibrahim Hamoudeh",phone:"054-6075041"}},
-  {number:246,name:"Orion Jerusalem",primary:{name:"Adnan Basti",phone:"054-6230809",role:"FIRST"},supervisor:{name:"Muhammad Shahadeh",phone:"050-3103238"}},
-  {number:250,name:"Emek Center",primary:{name:"Hala Zoabi",phone:"052-9638799",role:"FIRST"},supervisor:{name:"Iman Zoabi",phone:"054-3393292"}},
-  {number:262,name:"Baka – We Center",primary:{name:"Naba Kattawi",phone:"050-2725787",role:"FIRST"},supervisor:{name:"Amir Wawiya",phone:"052-8877122"}},
-  {number:268,name:"Afula Central Station (Kosher)",primary:{name:"Noa Azulay",phone:"053-3347256",role:"FIRST"},supervisor:{name:"Sharon Shalom Almakes",phone:"054-2866132"}},
-  {number:270,name:"Dushi Center",primary:{name:"Yaman Abu Ras",phone:"054-2682625",role:"Branch Supervisor"},supervisor:{name:"Alaa Khatib",phone:"052-3044138"}},
-  {number:271,name:"Grand Canyon Haifa – Food Court Floor 3 (Kosher)",primary:{name:"Lian Zivak",phone:"052-5615873",role:"Restaurant Manager"},supervisor:{name:"Asraa Daroubi",phone:"054-3225530"}},
-  {number:274,name:"Sha'ar Palmer",primary:{name:"Adam Awad",phone:"054-9430354",role:"Restaurant Manager"},supervisor:{name:"Alaa Khatib",phone:"052-3044138"}},
-  {number:275,name:"Bi'na – Deir al-Asad, Dabbah Mall",primary:{name:"Saleh Farhat",phone:"055-6855161",role:"SECOND"},supervisor:{name:"Kobi-Yaakov Kadosh",phone:"054-2574007"}},
-  {number:279,name:"Shefa-Amr",primary:{name:"Fatma Tantouri",phone:"053-4858799",role:"Restaurant Manager"},supervisor:{name:"Nermin Shahadeh",phone:"054-5220173"}},
-  {number:280,name:"Tira",primary:{name:"Ouday Jamhour",phone:"053-6434804",role:"SECOND"},supervisor:{name:"Amir Wawiya",phone:"052-8877122"}},
-  {number:296,name:"Tayibe",primary:{name:"Muhammad Wawiya",phone:"054-9957661",role:"Branch Supervisor"},supervisor:{name:"Amir Wawiya",phone:"052-8877122"}},
-  {number:303,name:"Rahat Seven",primary:{name:"Maysa Abu Hamed",phone:"054-3330503",role:"Restaurant Manager"},supervisor:{name:"Ranin Hamed",phone:"054-4381957"}},
-  {number:306,name:"Tamra SEVEN",primary:{name:"Islam Mughrabi",phone:"054-6470588",role:"Restaurant Manager"},supervisor:{name:"Khaled Suleiman",phone:"054-3277807"}},
-  {number:308,name:"Talpiot Jerusalem (Kosher)",primary:{name:"Munther Shouman",phone:"058-7600033",role:"Restaurant Manager"},supervisor:{name:"Amran Mjahad",phone:"054-8387174"}},
-];
+const branches:Branch[] = mcdonaldsBranches.map((branch) => ({
+  number: branch.number,
+  name: branch.name,
+  primary: branch.branchManager ? { name: "Branch Manager", phone: branch.branchManager, role: "Branch Manager" } : undefined,
+  supervisor: { name: "Supervisor", phone: branch.supervisor, role: "Supervisor" },
+}));
 
 const dial = (phone:string) => phone.replace(/\D/g, "");
 

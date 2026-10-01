@@ -104,7 +104,7 @@ export function DeliveryCoverageChecker() {
       excludedShapes.forEach((shape)=>L.polygon(shape.map(toLatLng),{color:"#dc264b",weight:2,fillColor:"#ef4767",fillOpacity:.22,dashArray:"7 7"}).bindTooltip("منطقة مستثناة من التوصيل").addTo(instance));
       instance.on("click",(event:L.LeafletMouseEvent)=>{
         const point=toMapPoint(event.latlng.lat,event.latlng.lng);const covered=isCoveredPoint(point);
-        setSelected({name:"موقع محدد على الخريطة",english:`${event.latlng.lat.toFixed(5)}, ${event.latlng.lng.toFixed(5)}`,x:point[0],y:point[1],covered,note:covered?"النقطة داخل حدود التوصيل التجريبية":"النقطة خارج حدود التوصيل التجريبية"});setQuery("موقع محدد");
+        setSelected({name:"موقع محدد على الخريطة",english:`${event.latlng.lat.toFixed(5)}, ${event.latlng.lng.toFixed(5)}`,x:point[0],y:point[1],covered,note:covered?"النقطة داخل حدود التوصيل":"النقطة خارج حدود التوصيل"});setQuery("موقع محدد");
       });
       setMapReady(true);
       setTimeout(()=>instance.invalidateSize(),80);
@@ -122,7 +122,7 @@ export function DeliveryCoverageChecker() {
     instance.flyTo(position,Math.max(instance.getZoom(),13),{duration:.75});
   },[selected]);
 
-  const locateMe=()=>navigator.geolocation?.getCurrentPosition(({coords})=>{const point=toMapPoint(coords.latitude,coords.longitude);const covered=isCoveredPoint(point);setSelected({name:"موقعي الحالي",english:`${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`,x:point[0],y:point[1],covered,note:covered?"موقعك داخل حدود التوصيل التجريبية":"موقعك خارج حدود التوصيل التجريبية"});setQuery("موقعي الحالي")});
+  const locateMe=()=>navigator.geolocation?.getCurrentPosition(({coords})=>{const point=toMapPoint(coords.latitude,coords.longitude);const covered=isCoveredPoint(point);setSelected({name:"موقعي الحالي",english:`${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`,x:point[0],y:point[1],covered,note:covered?"موقعك داخل حدود التوصيل":"موقعك خارج حدود التوصيل"});setQuery("موقعي الحالي")});
 
   return (
     <section className="card overflow-hidden border-[color-mix(in_srgb,var(--primary)_18%,var(--line))]">
@@ -130,7 +130,7 @@ export function DeliveryCoverageChecker() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-3">
             <i className="grid size-11 shrink-0 place-items-center rounded-2xl bg-white/15"><Navigation size={22}/></i>
-            <div><span className="text-[9px] font-black text-rose-100">نسخة تجريبية • منطقة طولكرم • {places.length} موقعًا</span><h2 className="mt-1 text-lg font-black">هل يوجد توصيل لهذا الموقع؟</h2><p className="mt-1 text-[10px] text-rose-100">ابحث باسم البلدة أو القرية وسيظهر نطاق التوصيل مباشرة على الخريطة.</p></div>
+            <div><span className="text-[9px] font-black text-rose-100">منطقة طولكرم • {places.length} موقعًا</span><h2 className="mt-1 text-lg font-black">هل يوجد توصيل لهذا الموقع؟</h2><p className="mt-1 text-[10px] text-rose-100">ابحث باسم البلدة أو القرية وسيظهر نطاق التوصيل مباشرة على الخريطة.</p></div>
           </div>
           <div className="flex flex-wrap gap-2"><button type="button" onClick={locateMe} className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-2 text-[9px] font-black text-[#a7092c] shadow-lg"><LocateFixed size={14}/>استخدم موقعي</button><span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-2 text-[9px] font-bold"><ShieldCheck size={14}/>مخصص لموظفي HAAT</span></div>
         </div>
@@ -138,7 +138,7 @@ export function DeliveryCoverageChecker() {
           <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={19}/>
           <input value={query} onChange={(event) => { setQuery(event.target.value); setSelected(null); }} onKeyDown={(event) => { if (event.key === "Enter" && matches[0]) choose(matches[0]); }} className="h-14 w-full rounded-2xl border-0 bg-white pr-12 pl-4 text-sm font-bold text-slate-900 shadow-xl outline-none ring-0 placeholder:font-normal placeholder:text-slate-400" placeholder="اكتب مثلاً: شويكة، ذنابة، رامين، كفر قدوم..." aria-label="ابحث عن موقع التوصيل"/>
           {query && !selected && <div className="absolute inset-x-0 top-[60px] z-30 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 text-slate-900 shadow-2xl">
-            {matches.length ? matches.map((place) => <button type="button" key={place.name} onClick={() => choose(place)} className="flex w-full items-center gap-3 rounded-xl p-3 text-start hover:bg-rose-50"><MapPin size={17} className="text-[var(--primary)]"/><span className="flex-1"><b className="block text-xs">{place.name}</b><small dir="ltr" className="mt-0.5 block text-start text-[9px] text-slate-500">{place.english}</small></span><span className={`rounded-full px-2 py-1 text-[8px] font-bold ${place.covered ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>{place.covered ? "يوجد توصيل" : "لا يوجد"}</span></button>) : <div className="p-4 text-center text-xs text-slate-500"><CircleAlert className="mx-auto mb-2" size={20}/>الموقع غير موجود في النسخة التجريبية</div>}
+            {matches.length ? matches.map((place) => <button type="button" key={place.name} onClick={() => choose(place)} className="flex w-full items-center gap-3 rounded-xl p-3 text-start hover:bg-rose-50"><MapPin size={17} className="text-[var(--primary)]"/><span className="flex-1"><b className="block text-xs">{place.name}</b><small dir="ltr" className="mt-0.5 block text-start text-[9px] text-slate-500">{place.english}</small></span><span className={`rounded-full px-2 py-1 text-[8px] font-bold ${place.covered ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>{place.covered ? "يوجد توصيل" : "لا يوجد"}</span></button>) : <div className="p-4 text-center text-xs text-slate-500"><CircleAlert className="mx-auto mb-2" size={20}/>الموقع غير موجود ضمن مناطق التشغيل</div>}
           </div>}
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2 text-[9px]"><span className="text-rose-100">جرّب سريعًا:</span>{["شويكة", "ذنابة", "رامين", "أفني حيفتس"].map((name) => { const place = places.find((item) => item.name === name)!; return <button type="button" key={name} onClick={() => choose(place)} className="rounded-full bg-white/15 px-3 py-1.5 font-bold hover:bg-white/25">{name}</button>; })}</div>
@@ -156,7 +156,7 @@ export function DeliveryCoverageChecker() {
             <div className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-[10px] font-black ${selected.covered ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>{selected.covered ? <CheckCircle2 size={16}/> : <XCircle size={16}/>}نتيجة البحث</div>
             <h3 className="mt-5 text-2xl font-black">{selected.name}</h3><p dir="ltr" className="mt-1 text-start text-xs text-[var(--muted)]">{selected.english}</p>
             <div className={`mt-6 rounded-[24px] border p-5 ${selected.covered ? "border-emerald-200 bg-emerald-50" : "border-red-200 bg-red-50"}`}><strong className={`flex items-center gap-2 text-xl ${selected.covered ? "text-emerald-800" : "text-red-800"}`}>{selected.covered ? <CheckCircle2/> : <XCircle/>}{selected.covered ? "نعم، يوجد توصيل" : "لا يوجد توصيل حاليًا"}</strong><p className={`mt-2 text-xs leading-6 ${selected.covered ? "text-emerald-700" : "text-red-700"}`}>{selected.note}</p></div>
-            <div className="mt-4 flex items-start gap-2 rounded-2xl bg-[var(--surface-2)] p-4 text-[9px] leading-5 text-[var(--muted)]"><CircleAlert size={16} className="mt-0.5 shrink-0"/>الخريطة الآن قابلة للتحريك والتكبير والضغط على أي نقطة. الحدود مرسومة مبدئيًا من الصور وتحتاج مراجعة إحداثيات قبل الاعتماد النهائي.</div>
+            <div className="mt-4 flex items-start gap-2 rounded-2xl bg-[var(--surface-2)] p-4 text-[9px] leading-5 text-[var(--muted)]"><CircleAlert size={16} className="mt-0.5 shrink-0"/>يمكن تحريك الخريطة وتكبيرها والضغط على أي نقطة للتحقق من توفر التوصيل.</div>
           </div>}
         </aside>
       </div>

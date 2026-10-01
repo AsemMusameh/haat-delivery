@@ -1,8 +1,11 @@
+export type ReportCategory = "voice" | "connecteam" | "chat";
+
 export type DailyReport = {
   id: string;
   authorId: string;
   authorName: string;
   department: string;
+  reportType: ReportCategory;
   reportDate: string;
   shift: string;
   title: string;
@@ -28,6 +31,7 @@ export type MonthlyReport = {
 type DailyRow = {
   id: string; author_id: string; author_name: string; department: string; report_date: string;
   shift: string; title: string; summary: string; achievements: string; challenges: string; notes: string; created_at: string;
+  report_type?: ReportCategory | null;
 };
 type MonthlyRow = {
   id: string; author_id: string; author_name: string; report_month: string; title: string;
@@ -48,6 +52,9 @@ export async function ensureReportStore() {
       report_date TEXT NOT NULL,shift TEXT NOT NULL,title TEXT NOT NULL,summary TEXT NOT NULL,
       achievements TEXT NOT NULL DEFAULT '',challenges TEXT NOT NULL DEFAULT '',notes TEXT NOT NULL DEFAULT '',created_at TEXT NOT NULL)`),
     db.prepare("CREATE INDEX IF NOT EXISTS portal_daily_reports_date_idx ON portal_daily_reports (report_date DESC, created_at DESC)"),
+    db.prepare(`CREATE TABLE IF NOT EXISTS portal_daily_report_types (
+      report_id TEXT PRIMARY KEY,report_type TEXT NOT NULL DEFAULT 'chat')`),
+    db.prepare("CREATE INDEX IF NOT EXISTS portal_daily_report_types_type_idx ON portal_daily_report_types (report_type,report_id)"),
     db.prepare(`CREATE TABLE IF NOT EXISTS portal_monthly_reports (
       id TEXT PRIMARY KEY,author_id TEXT NOT NULL,author_name TEXT NOT NULL,report_month TEXT NOT NULL,
       title TEXT NOT NULL,note TEXT NOT NULL DEFAULT '',image_data TEXT NOT NULL,image_name TEXT NOT NULL,created_at TEXT NOT NULL)`),
@@ -57,6 +64,7 @@ export async function ensureReportStore() {
 
 const mapDaily = (row: DailyRow): DailyReport => ({
   id: row.id, authorId: row.author_id, authorName: row.author_name, department: row.department,
+  reportType: row.report_type || "chat",
   reportDate: row.report_date, shift: row.shift, title: row.title, summary: row.summary,
   achievements: row.achievements, challenges: row.challenges, notes: row.notes, createdAt: row.created_at,
 });
@@ -67,7 +75,9 @@ const mapMonthly = (row: MonthlyRow): MonthlyReport => ({
 
 export async function listDailyReports() {
   await ensureReportStore();
-  const result = await database().prepare("SELECT * FROM portal_daily_reports ORDER BY report_date DESC, created_at DESC LIMIT 365").all<DailyRow>();
+  const result = await database().prepare(`SELECT r.*,COALESCE(t.report_type,'chat') report_type
+    FROM portal_daily_reports r LEFT JOIN portal_daily_report_types t ON t.report_id=r.id
+    ORDER BY r.report_date DESC,r.created_at DESC LIMIT 365`).all<DailyRow>();
   return (result.results || []).map(mapDaily);
 }
 
@@ -75,12 +85,16 @@ export async function createDailyReport(input: Omit<DailyReport, "id" | "created
   await ensureReportStore();
   const id = crypto.randomUUID();
   const createdAt = new Date().toISOString();
-  await database().prepare(`INSERT INTO portal_daily_reports
+  const db = database();
+  await db.batch([
+    db.prepare(`INSERT INTO portal_daily_reports
     (id,author_id,author_name,department,report_date,shift,title,summary,achievements,challenges,notes,created_at)
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`).bind(
       id,input.authorId,input.authorName,input.department,input.reportDate,input.shift,input.title,input.summary,
       input.achievements,input.challenges,input.notes,createdAt,
-    ).run();
+    ),
+    db.prepare("INSERT INTO portal_daily_report_types (report_id,report_type) VALUES (?,?)").bind(id,input.reportType),
+  ]);
   return { ...input, id, createdAt };
 }
 
@@ -111,5 +125,9 @@ export async function reportOwner(type: "daily" | "monthly", id: string) {
 export async function deleteReport(type: "daily" | "monthly", id: string) {
   await ensureReportStore();
   const table = type === "daily" ? "portal_daily_reports" : "portal_monthly_reports";
-  await database().prepare(`DELETE FROM ${table} WHERE id=?`).bind(id).run();
+  if (type === "daily") await database().batch([
+    database().prepare("DELETE FROM portal_daily_report_types WHERE report_id=?").bind(id),
+    database().prepare(`DELETE FROM ${table} WHERE id=?`).bind(id),
+  ]);
+  else await database().prepare(`DELETE FROM ${table} WHERE id=?`).bind(id).run();
 }

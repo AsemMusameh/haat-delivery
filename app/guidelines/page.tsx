@@ -3,18 +3,20 @@
 import {
   Bike, BookOpenCheck, Building2, ClipboardCheck, Copy, ExternalLink, Headphones,
   MapPinned, MonitorCog, Store, TimerReset, UserRoundCheck, WalletCards,
+  Search,
 } from "lucide-react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 
 const areas = [
-  { ids: "1، 2، 4", areas: "Umm al-Fahem · Kfar Qaree - Arara · Baqa al-Gharbiyye", manager: "Nassim Masarwy", phone: "+972545026965" },
-  { ids: "5، 7، 13", areas: "Sakhnin - Arraba - Deir Hanna · Shefa-Amr - I'billin · Tamra - Kabul", manager: "Seif Abualheja", phone: "+972549580852" },
-  { ids: "8، 12", areas: "Kfar Qasem · Taybeh - Tira - Qalansawe", manager: "Naseem Mwasi", phone: "+972544732050" },
-  { ids: "9", areas: "Jerusalem", manager: "Wisam Abugharbeyye", phone: "+972544371004" },
-  { ids: "10", areas: "Nazareth area", manager: "Kosai Abofoul", phone: "+972547905048" },
-  { ids: "16، 19", areas: "Judaydah Almaker - Yarka - Yassif · Karmiel - Shaghur", manager: "Essam Jammal", phone: "+972542785813" },
-  { ids: "20", areas: "Rahat", manager: "Adham", phone: "+972543687217" },
+  { ids: "1، 2، 4", areas: "Umm al-Fahem · Kafr Qara - Arara · Baqa al-Gharbiyye", areasAr: "أم الفحم · كفر قرع - عرعرة · باقة الغربية", manager: "Nassim Masarwy", phone: "+972545026965" },
+  { ids: "5، 7، 13", areas: "Sakhnin - Arraba - Deir Hanna · Shefa-Amr - I'billin · Tamra - Kabul", areasAr: "سخنين - عرابة - دير حنا · شفاعمرو - إعبلين · طمرة - كابول", manager: "Seif Abualheja", phone: "+972549580852" },
+  { ids: "8، 12", areas: "Kafr Qasem · Taybeh - Tira - Qalansawe", areasAr: "كفر قاسم · الطيبة - الطيرة - قلنسوة", manager: "Naseem Mwasi", phone: "+972544732050" },
+  { ids: "9", areas: "Jerusalem", areasAr: "القدس", manager: "Wisam Abugharbeyye", phone: "+972544371004" },
+  { ids: "10", areas: "Nazareth area", areasAr: "منطقة الناصرة", manager: "Kosai Abofoul", phone: "+972547905048" },
+  { ids: "16، 19", areas: "Judaydah Almaker - Yarka - Yassif · Karmiel - Shaghur", areasAr: "الجديدة المكر - يركا - ياسيف · كرمئيل - الشاغور", manager: "Essam Jammal", phone: "+972542785813" },
+  { ids: "20", areas: "Rahat", areasAr: "رهط", manager: "Adham", phone: "+972543687217" },
 ];
 
 const hcrmRoutes = [
@@ -25,6 +27,11 @@ const hcrmRoutes = [
 ];
 
 export default function GuidelinesPage() {
+  const [areaQuery, setAreaQuery] = useState("");
+  const visibleAreas = useMemo(() => {
+    const query = areaQuery.trim().toLowerCase();
+    return query ? areas.filter((item) => `${item.areas} ${item.areasAr} ${item.manager} ${item.phone} ${item.ids}`.toLowerCase().includes(query)) : areas;
+  }, [areaQuery]);
   const copy = async (value: string, label: string) => {
     await navigator.clipboard.writeText(value);
     toast.success(`تم نسخ ${label}`);
@@ -49,7 +56,7 @@ export default function GuidelinesPage() {
         <article className="card p-5 sm:p-6"><div className="flex items-center gap-3"><i className="row-icon"><TimerReset size={19} /></i><h3 className="font-black">المطعم يريد زيادة وقت التحضير</h3></div><div className="mt-5 flex flex-wrap items-center gap-2 text-xs font-bold"><span className="rounded-xl bg-[var(--surface-2)] px-4 py-3">HCRM</span><span>←</span><span className="rounded-xl bg-[var(--surface-2)] px-4 py-3">Customer Service</span><span>←</span><span className="rounded-xl bg-[var(--primary-soft)] px-4 py-3 text-[var(--primary)]">Preparation Time Update</span></div><p className="mt-4 text-xs leading-6 text-[var(--muted)]">ادخل إلى HCRM، ثم Customer Service، وبعدها Preparation Time Update.</p></article>
       </div>
 
-      <section id="area-managers" className="card scroll-mt-24 overflow-hidden"><header className="flex items-center gap-3 border-b border-[var(--line)] p-5 sm:p-6"><i className="row-icon"><MapPinned size={19} /></i><div><h3 className="font-black">مسؤولو المناطق</h3><p className="text-xs text-[var(--muted)]">اسحب البطاقات يميناً ويساراً، واختر مسؤول المنطقة المطلوب.</p></div></header><div className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth p-5 pb-7 sm:p-6 sm:pb-8">{areas.map((item) => <article key={item.ids} className="min-w-[270px] max-w-[320px] snap-start rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-sm transition hover:-translate-y-1 hover:border-[var(--primary)] hover:shadow-lg sm:min-w-[310px]"><div className="flex items-center justify-between"><i className="grid size-11 place-items-center rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)]"><MapPinned size={19} /></i><span className="rounded-full bg-[var(--surface-2)] px-3 py-1 text-[10px] font-black">ID {item.ids}</span></div><p className="mt-5 min-h-12 text-sm font-black leading-6" dir="ltr">{item.areas}</p><div className="mt-4 rounded-2xl bg-[var(--surface-2)] p-4"><span className="text-[10px] text-[var(--muted)]">مسؤول المنطقة</span><h4 className="mt-1 text-base font-black" dir="ltr">{item.manager}</h4><a className="mt-2 block font-mono text-sm font-bold text-[var(--primary)]" dir="ltr" href={`tel:${item.phone}`}>{item.phone}</a></div><div className="mt-4 grid grid-cols-2 gap-2"><button className="btn btn-secondary !min-h-0 !px-3 !py-2 text-[10px]" onClick={() => void copy(item.phone, "رقم الهاتف")}><Copy size={13} />نسخ الرقم</button><a className="btn btn-primary !min-h-0 !px-3 !py-2 text-[10px]" href={`tel:${item.phone}`}><Headphones size={13} />اتصال</a></div></article>)}</div></section>
+      <section id="area-managers" className="card scroll-mt-24 overflow-hidden"><header className="flex flex-col gap-4 border-b border-[var(--line)] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"><div className="flex items-center gap-3"><i className="row-icon"><MapPinned size={19} /></i><div><h3 className="font-black">مسؤولو المناطق</h3><p className="text-xs text-[var(--muted)]">كل المناطق والأسماء والأرقام ظاهرة مباشرة بدون سحب جانبي.</p></div></div><label className="relative w-full sm:w-80"><Search className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)]" size={16}/><input className="input pr-10" value={areaQuery} onChange={(event) => setAreaQuery(event.target.value)} placeholder="ابحث بالمنطقة أو المسؤول أو الرقم..."/></label></header><div className="grid gap-4 p-5 sm:p-6 md:grid-cols-2 xl:grid-cols-3">{visibleAreas.map((item) => <article key={item.ids} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-sm transition hover:border-[var(--primary)] hover:shadow-lg"><div className="flex items-center justify-between"><i className="grid size-11 place-items-center rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)]"><MapPinned size={19} /></i><span className="rounded-full bg-[var(--surface-2)] px-3 py-1 text-[10px] font-black">المناطق {item.ids}</span></div><h4 className="mt-4 text-base font-black leading-7">{item.areasAr}</h4><p className="mt-1 text-xs leading-6 text-[var(--muted)]" dir="ltr">{item.areas}</p><div className="mt-4 rounded-2xl bg-[var(--surface-2)] p-4"><span className="text-[11px] text-[var(--muted)]">مسؤول المنطقة</span><h4 className="mt-1 text-base font-black" dir="ltr">{item.manager}</h4><a className="mt-2 block font-mono text-sm font-bold text-[var(--primary)]" dir="ltr" href={`tel:${item.phone}`}>{item.phone}</a></div><div className="mt-4 grid grid-cols-2 gap-2"><button className="btn btn-secondary !min-h-0 !px-3 !py-2 text-[11px]" onClick={() => void copy(item.phone, "رقم الهاتف")}><Copy size={14} />نسخ الرقم</button><a className="btn btn-primary !min-h-0 !px-3 !py-2 text-[11px]" href={`tel:${item.phone}`}><Headphones size={14} />اتصال</a></div></article>)}{visibleAreas.length === 0 && <div className="md:col-span-2 xl:col-span-3 rounded-2xl bg-[var(--surface-2)] p-8 text-center text-sm text-[var(--muted)]">لا توجد منطقة مطابقة للبحث.</div>}</div></section>
     </div>
   </AppShell>;
 }

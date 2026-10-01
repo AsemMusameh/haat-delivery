@@ -4,13 +4,13 @@ import {
   AppWindow, Bell, Bookmark, BookOpenCheck, BrainCircuit, CalendarDays, ChartNoAxesCombined, ChevronLeft, ChevronRight,
   CircleDollarSign, CircleUserRound, ClipboardList, FileImage, FileWarning, Home,
   KeyRound, LayoutGrid, LayoutList, LockKeyhole, LogOut, MapPinned, Megaphone, Menu, MessageCircleMore,
-  MessageSquareText, MessagesSquare, Moon, Plus, Plug, Search, Settings, Sparkles, Sun, Users,
+  MessageSquareText, MessagesSquare, Moon, Plus, Plug, Search, Settings, Sparkles, Sun, Users, UsersRound,
   UtensilsCrossed, X, GraduationCap,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { demoEmployees, demoNotifications } from "@/lib/demo-data";
+import { demoEmployees, demoNotifications, departmentHeadEmails } from "@/lib/demo-data";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { isLockedFeature } from "@/lib/locked-features";
 import { useProfile } from "@/lib/hooks";
@@ -28,12 +28,15 @@ export function AppShell({ children, title, admin = false, action }: { children:
   const [query, setQuery] = useState("");
   const [signingOut, setSigningOut] = useState(false);
   const [sessionProfile, setSessionProfile] = useState<(typeof demoEmployees)[number] | null>(null);
+  const [accountPermissions, setAccountPermissions] = useState<Record<string, boolean>>({});
   const { theme, toggle } = useTheme();
   const { locale, t } = useLocale();
   const profile = useProfile();
   const activeProfile = sessionProfile ?? profile;
   const ar = locale === "ar";
-  const roleLabel = ({ employee: ar ? "موظف" : "Employee", supervisor: ar ? "مشرف" : "Supervisor", manager: ar ? "مدير" : "Manager", admin: ar ? "مسؤول نظام" : "Administrator" } as const)[activeProfile.role];
+  const roleLabel = departmentHeadEmails.has(activeProfile.email.toLowerCase())
+    ? (ar ? "مسؤول قسم" : "Department head")
+    : ({ employee: ar ? "موظف" : "Employee", supervisor: ar ? "مشرف" : "Supervisor", manager: ar ? "مدير" : "Manager", admin: ar ? "مسؤول نظام" : "Administrator" } as const)[activeProfile.role];
   const roleAdmin = sessionProfile ? ["manager", "admin"].includes(sessionProfile.role) : admin;
   const shellAdmin = admin || roleAdmin;
   const showCelebrationStrip = path === "/community" || path === "/messages";
@@ -45,6 +48,9 @@ export function AppShell({ children, title, admin = false, action }: { children:
     { href: "/guidelines", label: "التوجيهات", icon: BookOpenCheck },
     { href: "/daily-reports", label: "التقارير اليومية", icon: CalendarDays },
     { href: "/monthly-reports", label: "التقارير الشهرية", icon: FileImage },
+    { href: "/order-complaints", label: "شكوى طلبية", icon: FileWarning },
+    { href: "/shift-leads", label: "مسؤولو الشفت الحالي", icon: UsersRound },
+    { href: "/ads", label: "الإعلانات", icon: Megaphone },
     { href: "/compensations", label: ar ? "التعويضات" : "Compensations", icon: CircleDollarSign },
     { href: "/restaurants", label: ar ? "التواصل مع المطاعم" : "Restaurant Contacts", icon: UtensilsCrossed },
     { href: "/community", label: ar ? "مجتمع الشركة" : "Company Feed", icon: MessagesSquare },
@@ -63,10 +69,15 @@ export function AppShell({ children, title, admin = false, action }: { children:
   const adminNav = [
     { href: "/admin", label: t.admin, icon: ChartNoAxesCombined },
     { href: "/admin/announcements/new", label: t.newAnnouncement, icon: Megaphone },
+    { href: "/announcements", label: t.announcements, icon: Megaphone },
     { href: "/admin/reports", label: t.reports, icon: ChartNoAxesCombined },
     { href: "/guidelines", label: "التوجيهات", icon: BookOpenCheck },
     { href: "/daily-reports", label: "التقارير اليومية", icon: CalendarDays },
     { href: "/monthly-reports", label: "التقارير الشهرية", icon: FileImage },
+    { href: "/order-complaints", label: "شكاوى الطلبيات", icon: FileWarning },
+    { href: "/shift-leads", label: "مسؤولو الشفت الحالي", icon: UsersRound },
+    { href: "/admin/shift-leads", label: "إدارة مسؤولي الشفت", icon: UsersRound },
+    { href: "/ads", label: "الإعلانات", icon: Megaphone },
     { href: "/admin/requests", label: ar ? "إدارة الطلبات" : "Manage Requests", icon: ClipboardList },
     { href: "/admin/employees", label: t.employees, icon: Users },
     { href: "/admin/permissions", label: ar ? "الحسابات والصلاحيات" : "Accounts & Permissions", icon: KeyRound },
@@ -78,15 +89,21 @@ export function AppShell({ children, title, admin = false, action }: { children:
     { href: "/admin/office-brain", label: ar ? "إدارة Office Brain" : "Manage Office Brain", icon: BrainCircuit },
     { href: "/admin/settings", label: t.settings, icon: Settings },
   ];
+  const permissionForPath: Record<string, string> = {
+    "/announcements": "view_announcements", "/requests": "create_requests",
+    "/daily-reports": "view_reports", "/monthly-reports": "view_reports",
+    "/apps": "use_tools", "/order-complaints": "submit_complaints", "/guidelines": "read_guidelines",
+  };
+  const visibleEmployeeNav = employeeNav.filter((item) => accountPermissions[permissionForPath[item.href]] !== false);
   const groups = shellAdmin
     ? [{ label: ar ? "إدارة المنصة" : "Management", items: adminNav }]
-    : [{ label: ar ? "العمل اليومي" : "Daily work", items: employeeNav.slice(0, 11) }, { label: ar ? "الأدوات والمتابعة" : "Tools & activity", items: employeeNav.slice(11) }];
-  const allNav = shellAdmin ? adminNav : employeeNav;
+    : [{ label: ar ? "العمل اليومي" : "Daily work", items: visibleEmployeeNav.slice(0, 14) }, { label: ar ? "الأدوات والمتابعة" : "Tools & activity", items: visibleEmployeeNav.slice(14) }];
+  const allNav = shellAdmin ? adminNav : visibleEmployeeNav;
   const needle = query.trim().toLocaleLowerCase(ar ? "ar" : "en");
   const filteredNav = allNav.filter((item) => !needle || item.label.toLocaleLowerCase(ar ? "ar" : "en").includes(needle)).slice(0, 9);
   const mobileNav = shellAdmin
     ? ["/admin", "/admin/requests", "/monthly-reports", "/admin/employees", "/admin/settings"].map((href) => adminNav.find((item) => item.href === href)!).filter(Boolean)
-    : ["/dashboard", "/requests", "/daily-reports", "/monthly-reports", "/settings"].map((href) => employeeNav.find((item) => item.href === href)!).filter(Boolean);
+    : ["/dashboard", "/requests", "/daily-reports", "/monthly-reports", "/settings"].map((href) => visibleEmployeeNav.find((item) => item.href === href)!).filter(Boolean);
 
   useEffect(() => {
     if (isSupabaseConfigured) return;
@@ -94,8 +111,24 @@ export function AppShell({ children, title, admin = false, action }: { children:
     const current = demoEmployees.find((employee) => employee.id === id);
     if (!current) { window.location.replace("/login"); return; }
     setSessionProfile(current);
+    const token = window.localStorage.getItem("haat-session-token");
+    if (token) fetch(`/api/account-permissions?userId=${encodeURIComponent(current.id)}`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((response) => response.ok ? response.json() : { permissions: {} })
+      .then((data) => setAccountPermissions(data.permissions || {}))
+      .catch(() => setAccountPermissions({}));
     const privileged = ["manager", "admin"].includes(current.role);
-    const sharedRolePages = ["/profile", "/guidelines", "/daily-reports", "/monthly-reports"];
+    const sharedRolePages = [
+      "/profile",
+      "/guidelines",
+      "/daily-reports",
+      "/monthly-reports",
+      "/announcements",
+      "/notifications",
+      "/settings",
+      "/ads",
+      "/order-complaints",
+      "/shift-leads",
+    ];
     if (privileged && !path.startsWith("/admin") && !sharedRolePages.some((page) => path === page || path.startsWith(`${page}/`))) router.replace("/admin");
     if (!privileged && path.startsWith("/admin")) router.replace("/dashboard");
   }, [path, router]);

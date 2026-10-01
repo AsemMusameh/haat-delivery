@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Map, MapPin, Search, TestTube2 } from "lucide-react";
+import { CheckCircle2, Map, MapPin, Phone, Search, TestTube2 } from "lucide-react";
 import { coverageAreas as defaultCoverageAreas, type CoverageArea } from "@/lib/coverage-areas";
 export function CoverageMap() {
   const [coverageAreas, setCoverageAreas] = useState<CoverageArea[]>(defaultCoverageAreas);
@@ -197,6 +197,7 @@ export function CoverageMap() {
                 >
                   {selected.name}
                 </p>
+                {selected.phone && <a dir="ltr" className="mt-2 inline-flex items-center gap-1 text-xs font-black text-[var(--primary)]" href={`tel:${selected.phone.replace(/\D/g, "")}`}><Phone size={13}/>{selected.phone}</a>}
               </div>
               <span className="grid size-12 place-items-center rounded-2xl bg-[var(--primary)] text-lg font-black text-white">
                 #{selected.code}
@@ -240,6 +241,7 @@ export function CoverageMap() {
                   >
                     {area.name}
                   </small>
+                  {area.phone && <small dir="ltr" className="mt-1 block text-start text-[7px] font-bold text-[var(--primary)]">{area.phone}</small>}
                 </span>
                 {selected.code === area.code && (
                   <CheckCircle2
@@ -252,8 +254,7 @@ export function CoverageMap() {
           </div>
           <div className="mt-auto flex items-start gap-2 rounded-2xl bg-emerald-50 p-3 text-[9px] leading-5 text-emerald-800">
             <MapPin size={15} className="mt-0.5 shrink-0" />
-            الأرقام الظاهرة هي رموز المناطق التشغيلية المرسلة، وليست أرقام
-            هواتف.
+            الأرقام داخل الدوائر هي رموز المناطق، ورقم التواصل يظهر داخل بطاقة المنطقة عند توفره.
           </div>
         </aside>
       </div>
