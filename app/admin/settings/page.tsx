@@ -45,7 +45,7 @@ export default function Settings() {
     setLoading(true);
     const response = await fetch("/api/portal-settings", {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${window.localStorage.getItem("haat-session-token") || ""}` },
       body: JSON.stringify({ settings: items }),
     });
     setLoading(false);

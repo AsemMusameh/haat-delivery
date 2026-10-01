@@ -53,5 +53,33 @@ export const demoEmployees: Profile[] = staff.map((person, index) => {
 export const rosterEmails = new Set(demoEmployees.map((employee) => employee.email.toLowerCase()));
 export const managerEmails = new Set(demoEmployees.filter((employee) => employee.role === "manager").map((employee) => employee.email.toLowerCase()));
 export const demoProfile = demoEmployees[0];
-export const demoAnnouncements: Announcement[] = [];
-export const demoNotifications: NotificationItem[] = [];
+export const demoAnnouncements: Announcement[] = [
+  {
+    id: "ops-my-market-task-cost",
+    title: "توجيه مهم: My Market — Redelivery وRemake",
+    body: "يتم التعامل مع My Market مثل باقي المحلات عند عمل Redelivery أو Remake. بعد التواصل معهم بنفس آلية أي محل، يتم تحميلهم تكلفة التوصيل كاملة (Task Cost). يرجى الالتزام بهذه الآلية في جميع الحالات.",
+    priority: "urgent", status: "published", author_id: demoEmployees[0].id,
+    author: { full_name: "إدارة HAAT" }, published_at: "2026-10-01T03:30:00.000Z",
+    is_pinned: true, requires_acknowledgement: true, target_label: "جميع الموظفين ومسؤولي الشفتات",
+    read_count: 0, recipient_count: demoEmployees.length, is_read: false,
+  },
+  {
+    id: "ops-customer-alternate-phone",
+    title: "توجيه مهم: تواصل المرسل على رقم مختلف",
+    body: "عندما يطلب الزبون أن يتواصل معه المرسل على رقم مختلف عن الرقم الموجود في التطبيق:\n\n1) إذا كان هناك مرسل متعيّن: نتصل بالمرسل هاتفياً ونبلغه بالرقم الجديد.\n\n2) إذا لم يكن هناك مرسل متعيّن أو لم يرد المرسل: يجب تحويل التوجيه إلى جروب Issue Tracking على Slack (Connecteam حالياً)، وطلب إبلاغ المرسل فور تعيينه.\n\n3) في جميع الحالات: يجب إضافة الرقم الجديد في الكومنت. تحويل الحالة للمتابعة إلزامي لأن الكومنت وحده قد لا تتم مشاهدته، وقد يتصل المرسل بالرقم القديم ولا تُحل مشكلة الزبون.",
+    priority: "urgent", status: "published", author_id: demoEmployees[0].id,
+    author: { full_name: "إدارة HAAT" }, published_at: "2026-10-01T03:35:00.000Z",
+    is_pinned: true, requires_acknowledgement: true, target_label: "جميع الموظفين ومسؤولي الشفتات",
+    read_count: 0, recipient_count: demoEmployees.length, is_read: false,
+  },
+];
+export const demoNotifications: NotificationItem[] = demoAnnouncements.map((announcement) => ({
+  id: `notification-${announcement.id}`,
+  title: "تعميم جديد يتطلب القراءة",
+  body: announcement.title,
+  is_read: false,
+  created_at: announcement.published_at,
+  announcement_id: announcement.id,
+  link: `/announcements/${announcement.id}`,
+  kind: "announcement",
+}));

@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  AppWindow, Bell, Bookmark, BrainCircuit, CalendarDays, ChartNoAxesCombined, ChevronLeft, ChevronRight,
+  AppWindow, Bell, Bookmark, BookOpenCheck, BrainCircuit, CalendarDays, ChartNoAxesCombined, ChevronLeft, ChevronRight,
   CircleDollarSign, CircleUserRound, ClipboardList, FileImage, FileWarning, Home,
   KeyRound, LayoutGrid, LayoutList, LockKeyhole, LogOut, MapPinned, Megaphone, Menu, MessageCircleMore,
   MessageSquareText, MessagesSquare, Moon, Plus, Plug, Search, Settings, Sparkles, Sun, Users,
@@ -42,6 +42,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
     { href: "/dashboard", label: t.home, icon: Home },
     { href: "/requests", label: ar ? "الطلبات" : "Requests", icon: ClipboardList },
     { href: "/announcements", label: t.announcements, icon: Megaphone },
+    { href: "/guidelines", label: "التوجيهات", icon: BookOpenCheck },
     { href: "/daily-reports", label: "التقارير اليومية", icon: CalendarDays },
     { href: "/monthly-reports", label: "التقارير الشهرية", icon: FileImage },
     { href: "/compensations", label: ar ? "التعويضات" : "Compensations", icon: CircleDollarSign },
@@ -63,6 +64,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
     { href: "/admin", label: t.admin, icon: ChartNoAxesCombined },
     { href: "/admin/announcements/new", label: t.newAnnouncement, icon: Megaphone },
     { href: "/admin/reports", label: t.reports, icon: ChartNoAxesCombined },
+    { href: "/guidelines", label: "التوجيهات", icon: BookOpenCheck },
     { href: "/daily-reports", label: "التقارير اليومية", icon: CalendarDays },
     { href: "/monthly-reports", label: "التقارير الشهرية", icon: FileImage },
     { href: "/admin/requests", label: ar ? "إدارة الطلبات" : "Manage Requests", icon: ClipboardList },
@@ -78,7 +80,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
   ];
   const groups = shellAdmin
     ? [{ label: ar ? "إدارة المنصة" : "Management", items: adminNav }]
-    : [{ label: ar ? "العمل اليومي" : "Daily work", items: employeeNav.slice(0, 10) }, { label: ar ? "الأدوات والمتابعة" : "Tools & activity", items: employeeNav.slice(10) }];
+    : [{ label: ar ? "العمل اليومي" : "Daily work", items: employeeNav.slice(0, 11) }, { label: ar ? "الأدوات والمتابعة" : "Tools & activity", items: employeeNav.slice(11) }];
   const allNav = shellAdmin ? adminNav : employeeNav;
   const needle = query.trim().toLocaleLowerCase(ar ? "ar" : "en");
   const filteredNav = allNav.filter((item) => !needle || item.label.toLocaleLowerCase(ar ? "ar" : "en").includes(needle)).slice(0, 9);
@@ -93,7 +95,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
     if (!current) { window.location.replace("/login"); return; }
     setSessionProfile(current);
     const privileged = ["manager", "admin"].includes(current.role);
-    const sharedRolePages = ["/profile", "/daily-reports", "/monthly-reports"];
+    const sharedRolePages = ["/profile", "/guidelines", "/daily-reports", "/monthly-reports"];
     if (privileged && !path.startsWith("/admin") && !sharedRolePages.some((page) => path === page || path.startsWith(`${page}/`))) router.replace("/admin");
     if (!privileged && path.startsWith("/admin")) router.replace("/dashboard");
   }, [path, router]);

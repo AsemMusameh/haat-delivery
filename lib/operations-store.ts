@@ -48,6 +48,10 @@ export async function ensureOperationsStore() {
     ["support_email","بريد الدعم","support@haat.ps","التواصل"],
     ["work_guide_title","عنوان دليل العمل","دليل خدمة الزبائن","المحتوى"],
     ["emergency_notice","التنبيه الرئيسي","تأكد من مراجعة آخر التعميمات قبل بدء الوردية.","المحتوى"],
+    ["public_team_count","عدد أفراد الفريق","+500","الصفحة العامة"],
+    ["public_area_count","عدد المناطق المخدومة","+20","الصفحة العامة"],
+    ["public_support_hours","ساعات الدعم","24/7","الصفحة العامة"],
+    ["public_satisfaction","نسبة رضا الخدمة","98%","الصفحة العامة"],
   ];
   await database.batch(defaults.map(([key,label,value,group]) => database.prepare("INSERT OR IGNORE INTO portal_settings (key,label,value,group_name,updated_at) VALUES (?,?,?,?,?)").bind(key,label,value,group,stamp)));
   await database.batch(defaultCoverageAreas.map(area=>database.prepare("INSERT OR IGNORE INTO coverage_areas (code,name,name_ar,x,y,status,updated_at) VALUES (?,?,?,?,?,?,?)").bind(area.code,area.name,area.nameAr,area.x,area.y,area.status||"active",stamp)));

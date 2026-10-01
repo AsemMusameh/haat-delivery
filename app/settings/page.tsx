@@ -2,22 +2,40 @@
 
 import { BellRing, Check, Download, KeyRound, Palette, Settings2, ShieldCheck, Smartphone } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { colorPalettes, useTheme } from "@/components/theme-provider";
 import { disablePushNotifications, enablePushNotifications } from "@/lib/firebase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/client";
 
 const permissions = ["قراءة التعميمات", "إرسال الطلبات ومتابعتها", "استخدام الردود الجاهزة", "عرض أدوات العمل", "تأكيد الاطلاع"];
 
 export default function EmployeeSettings() {
-  const [push, setPush] = useState(true);
+  const [push, setPush] = useState(false);
   const { palette, setPalette } = useTheme();
+  useEffect(() => {
+    if (typeof Notification !== "undefined") setPush(Notification.permission === "granted" && window.localStorage.getItem("haat-notifications-disabled") !== "1");
+  }, []);
   const togglePush = async () => {
     try {
-      if (push) await disablePushNotifications(); else await enablePushNotifications();
-      setPush(!push);
-      toast.success(push ? "تم تعطيل إشعارات هذا الجهاز" : "تم تفعيل إشعارات هذا الجهاز");
+      if (push) {
+        if (isSupabaseConfigured) await disablePushNotifications();
+        window.localStorage.setItem("haat-notifications-disabled", "1");
+        setPush(false);
+        toast.success("تم تعطيل إشعارات هذا الجهاز");
+      } else {
+        if (isSupabaseConfigured) await enablePushNotifications();
+        else {
+          if (!("Notification" in window)) throw new Error("هذا المتصفح لا يدعم الإشعارات");
+          if (await Notification.requestPermission() !== "granted") throw new Error("لم يتم السماح بالإشعارات");
+          const registration = await navigator.serviceWorker.ready;
+          await registration.showNotification("تم تفعيل إشعارات HAAT", { body: "سيصلك تنبيه عند وجود تعميم جديد.", icon: "/icons/haat-app-icon.png", badge: "/icons/haat-app-icon.png", tag: "haat-notifications-enabled" });
+        }
+        window.localStorage.removeItem("haat-notifications-disabled");
+        setPush(true);
+        toast.success("تم تفعيل إشعارات هذا الجهاز");
+      }
     } catch (error) { toast.error(error instanceof Error ? error.message : "تعذر تحديث الإشعارات"); }
   };
 
