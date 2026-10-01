@@ -14,9 +14,9 @@ export const metadata: Metadata = {
     "codex-preview": "development",
   },
   icons: {
-    icon: "/icons/icon.svg",
-    shortcut: "/icons/icon.svg",
-    apple: "/icons/icon.svg",
+    icon: "/icons/haat-app-icon.png",
+    shortcut: "/icons/haat-app-icon.png",
+    apple: "/icons/haat-app-icon.png",
   },
   openGraph: {
     title: "HAAT | Tulkarm Office",

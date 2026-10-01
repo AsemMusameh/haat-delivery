@@ -1,8 +1,8 @@
 "use client";
 
 import {
-  AppWindow, Bell, Bookmark, BrainCircuit, ChartNoAxesCombined, ChevronLeft, ChevronRight,
-  CircleDollarSign, CircleUserRound, ClipboardList, FileWarning, Home,
+  AppWindow, Bell, Bookmark, BrainCircuit, CalendarDays, ChartNoAxesCombined, ChevronLeft, ChevronRight,
+  CircleDollarSign, CircleUserRound, ClipboardList, FileImage, FileWarning, Home,
   KeyRound, LayoutGrid, LayoutList, LockKeyhole, LogOut, MapPinned, Megaphone, Menu, MessageCircleMore,
   MessageSquareText, MessagesSquare, Moon, Plus, Plug, Search, Settings, Sparkles, Sun, Users,
   UtensilsCrossed, X, GraduationCap,
@@ -42,6 +42,8 @@ export function AppShell({ children, title, admin = false, action }: { children:
     { href: "/dashboard", label: t.home, icon: Home },
     { href: "/requests", label: ar ? "الطلبات" : "Requests", icon: ClipboardList },
     { href: "/announcements", label: t.announcements, icon: Megaphone },
+    { href: "/daily-reports", label: "التقارير اليومية", icon: CalendarDays },
+    { href: "/monthly-reports", label: "التقارير الشهرية", icon: FileImage },
     { href: "/compensations", label: ar ? "التعويضات" : "Compensations", icon: CircleDollarSign },
     { href: "/restaurants", label: ar ? "التواصل مع المطاعم" : "Restaurant Contacts", icon: UtensilsCrossed },
     { href: "/community", label: ar ? "مجتمع الشركة" : "Company Feed", icon: MessagesSquare },
@@ -54,12 +56,15 @@ export function AppShell({ children, title, admin = false, action }: { children:
     { href: "/office-brain", label: "Office Brain", icon: BrainCircuit },
     { href: "/bookmarks", label: t.bookmarks, icon: Bookmark },
     { href: "/notifications", label: t.notifications, icon: Bell },
+    { href: "/settings", label: "الإعدادات", icon: Settings },
     { href: "/profile", label: t.profile, icon: CircleUserRound },
   ];
   const adminNav = [
     { href: "/admin", label: t.admin, icon: ChartNoAxesCombined },
     { href: "/admin/announcements/new", label: t.newAnnouncement, icon: Megaphone },
     { href: "/admin/reports", label: t.reports, icon: ChartNoAxesCombined },
+    { href: "/daily-reports", label: "التقارير اليومية", icon: CalendarDays },
+    { href: "/monthly-reports", label: "التقارير الشهرية", icon: FileImage },
     { href: "/admin/requests", label: ar ? "إدارة الطلبات" : "Manage Requests", icon: ClipboardList },
     { href: "/admin/employees", label: t.employees, icon: Users },
     { href: "/admin/permissions", label: ar ? "الحسابات والصلاحيات" : "Accounts & Permissions", icon: KeyRound },
@@ -73,11 +78,13 @@ export function AppShell({ children, title, admin = false, action }: { children:
   ];
   const groups = shellAdmin
     ? [{ label: ar ? "إدارة المنصة" : "Management", items: adminNav }]
-    : [{ label: ar ? "العمل اليومي" : "Daily work", items: employeeNav.slice(0, 8) }, { label: ar ? "الأدوات والمتابعة" : "Tools & activity", items: employeeNav.slice(8) }];
+    : [{ label: ar ? "العمل اليومي" : "Daily work", items: employeeNav.slice(0, 10) }, { label: ar ? "الأدوات والمتابعة" : "Tools & activity", items: employeeNav.slice(10) }];
   const allNav = shellAdmin ? adminNav : employeeNav;
   const needle = query.trim().toLocaleLowerCase(ar ? "ar" : "en");
   const filteredNav = allNav.filter((item) => !needle || item.label.toLocaleLowerCase(ar ? "ar" : "en").includes(needle)).slice(0, 9);
-  const mobileNav = shellAdmin ? [adminNav[0], adminNav[3], adminNav[4], adminNav[2], adminNav.at(-1)!] : [employeeNav[0], employeeNav[1], employeeNav[2], employeeNav[10], employeeNav.at(-1)!];
+  const mobileNav = shellAdmin
+    ? ["/admin", "/admin/requests", "/monthly-reports", "/admin/employees", "/admin/settings"].map((href) => adminNav.find((item) => item.href === href)!).filter(Boolean)
+    : ["/dashboard", "/requests", "/daily-reports", "/monthly-reports", "/settings"].map((href) => employeeNav.find((item) => item.href === href)!).filter(Boolean);
 
   useEffect(() => {
     if (isSupabaseConfigured) return;
@@ -86,7 +93,8 @@ export function AppShell({ children, title, admin = false, action }: { children:
     if (!current) { window.location.replace("/login"); return; }
     setSessionProfile(current);
     const privileged = ["manager", "admin"].includes(current.role);
-    if (privileged && !path.startsWith("/admin") && path !== "/profile") router.replace("/admin");
+    const sharedRolePages = ["/profile", "/daily-reports", "/monthly-reports"];
+    if (privileged && !path.startsWith("/admin") && !sharedRolePages.some((page) => path === page || path.startsWith(`${page}/`))) router.replace("/admin");
     if (!privileged && path.startsWith("/admin")) router.replace("/dashboard");
   }, [path, router]);
 
@@ -116,8 +124,13 @@ export function AppShell({ children, title, admin = false, action }: { children:
     setSigningOut(true);
     try {
       if (isSupabaseConfigured) await createClient()?.auth.signOut({ scope: "local" });
+      else {
+        const token = window.localStorage.getItem("haat-session-token");
+        if (token) await fetch("/api/account-auth", { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
+      }
     } finally {
       window.localStorage.removeItem("haat-current-user");
+      window.localStorage.removeItem("haat-session-token");
       window.location.replace("/login");
     }
   };

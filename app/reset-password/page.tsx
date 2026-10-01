@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, CheckCircle2, Eye, EyeOff, KeyRound, LoaderCircle, LockKeyhole, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Eye, EyeOff, KeyRound, LoaderCircle, LockKeyhole } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -26,11 +26,18 @@ export default function ResetPasswordPage() {
     setBusy(true);
     try {
       if (isSupabaseConfigured) {
-        const { error } = await createClient()!.auth.updateUser({ password });
+        const client = createClient()!;
+        const { error } = await client.auth.updateUser({ password });
         if (error) throw error;
+        await client.auth.signOut({ scope: "local" });
       } else {
-        await new Promise((resolve) => setTimeout(resolve, 650));
+        const token = window.localStorage.getItem("haat-session-token");
+        const response = await fetch("/api/account-auth", { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token || ""}` }, body: JSON.stringify({ password }) });
+        const result = await response.json() as { error?: string };
+        if (!response.ok) throw new Error(result.error || "تعذر تحديث كلمة المرور");
       }
+      window.localStorage.removeItem("haat-current-user");
+      window.localStorage.removeItem("haat-session-token");
       setDone(true);
       toast.success(ar ? "تم تحديث كلمة المرور" : "Password updated");
     } catch (error) {
@@ -43,7 +50,7 @@ export default function ResetPasswordPage() {
   return (
     <main className="reset-page" dir={ar ? "rtl" : "ltr"}>
       <section className="reset-card">
-        <img src="/haat-logo.png" alt="HAAT" />
+        <img src="/haat-logo-transparent.png" alt="HAAT" />
         {done ? (
           <div className="reset-success">
             <i><CheckCircle2 size={32} /></i>
@@ -53,14 +60,13 @@ export default function ResetPasswordPage() {
           </div>
         ) : (
           <>
-            <span className="auth-eyebrow"><ShieldCheck size={15} />{ar ? "خطوة آمنة" : "Secure step"}</span>
             <h1>{ar ? "اختر كلمة مرور جديدة" : "Choose a new password"}</h1>
-            <p>{ar ? "استخدم 8 أحرف على الأقل، ويفضل دمج الأحرف والأرقام والرموز." : "Use at least 8 characters, preferably with letters, numbers and symbols."}</p>
             <form onSubmit={submit} className="login-form">
               <label><span>{ar ? "كلمة المرور الجديدة" : "New password"}</span><div className="login-input-wrap"><LockKeyhole size={19} /><input type={show ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="new-password" required /><button type="button" className="login-eye" onClick={() => setShow(!show)}>{show ? <EyeOff size={19} /> : <Eye size={19} />}</button></div></label>
               <label><span>{ar ? "تأكيد كلمة المرور" : "Confirm password"}</span><div className="login-input-wrap"><KeyRound size={19} /><input type={show ? "text" : "password"} value={confirm} onChange={(event) => setConfirm(event.target.value)} autoComplete="new-password" required /></div></label>
               <button className="login-submit" disabled={busy}>{busy ? <LoaderCircle className="auth-spin" size={19} /> : <KeyRound size={18} />}<span>{busy ? (ar ? "جارٍ الحفظ..." : "Saving...") : (ar ? "حفظ كلمة المرور" : "Save password")}</span></button>
             </form>
+            <p className="reset-note"><b>ملاحظة:</b> استخدم 8 أحرف على الأقل، ويفضل دمج الأحرف والأرقام والرموز.</p>
             <Link href="/login" className="reset-back">{ar ? "العودة لتسجيل الدخول" : "Back to sign in"}</Link>
           </>
         )}

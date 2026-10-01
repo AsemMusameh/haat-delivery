@@ -6,9 +6,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useTheme } from "@/components/theme-provider";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
-import { demoEmployees, managerEmails, rosterEmails } from "@/lib/demo-data";
+import { demoEmployees } from "@/lib/demo-data";
 
-const DEFAULT_PASSWORD = "123456789";
 const DEFAULT_EMAIL = "mohammad.moayyad@haat.delivery";
 const COMPANY_DOMAIN = "haat.delivery";
 
@@ -16,7 +15,7 @@ export default function Login() {
   const { theme, toggle } = useTheme();
   const router = useRouter();
   const [email, setEmail] = useState(DEFAULT_EMAIL);
-  const [password, setPassword] = useState(DEFAULT_PASSWORD);
+  const [password, setPassword] = useState("123456789");
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
   const [busy, setBusy] = useState<"password" | null>(null);
@@ -57,12 +56,15 @@ export default function Login() {
     try {
       if (!isAllowedEmail(login)) throw new Error("Use your official company email");
       if (!isSupabaseConfigured) {
-        if (!rosterEmails.has(login)) throw new Error("This email is not in the employee roster");
-        if (password !== DEFAULT_PASSWORD) throw new Error("Incorrect password");
-        const account = demoEmployees.find((employee) => employee.email.toLowerCase() === login);
-        window.localStorage.setItem("haat-current-user", account?.id ?? "");
-        await new Promise((resolve) => setTimeout(resolve, 350)); rememberEmail(login);
-        window.location.assign(managerEmails.has(login) ? "/admin" : "/dashboard"); return;
+        const response = await fetch("/api/account-auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ identifier: login, password }) });
+        const result = await response.json() as { error?: string; token?: string; userId?: string };
+        if (!response.ok || !result.token || !result.userId) throw new Error(result.error || "Unable to sign in");
+        const account = demoEmployees.find((employee) => employee.id === result.userId);
+        if (!account) throw new Error("This account is not in the employee roster");
+        window.localStorage.setItem("haat-current-user", account.id);
+        window.localStorage.setItem("haat-session-token", result.token);
+        rememberEmail(account.email);
+        window.location.assign(["manager", "admin"].includes(account.role) ? "/admin" : "/dashboard"); return;
       }
       const supabase = createClient()!;
       let loginEmail = login;
