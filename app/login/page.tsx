@@ -36,7 +36,14 @@ export default function Login() {
       const saved = window.localStorage.getItem("haat-remembered-email");
       const shouldRemember = window.localStorage.getItem("haat-remember-me") !== "false";
       setRemember(shouldRemember);
-      if (saved && shouldRemember) { setEmail(saved); setRecoveryEmail(saved); }
+      if (saved && shouldRemember && saved.toLowerCase().endsWith(`@${COMPANY_DOMAIN}`)) {
+        setEmail(saved);
+        setRecoveryEmail(saved);
+      } else if (saved) {
+        window.localStorage.removeItem("haat-remembered-email");
+        setEmail(DEFAULT_EMAIL);
+        setRecoveryEmail(DEFAULT_EMAIL);
+      }
     }, 0);
     return () => window.clearTimeout(timer);
   }, []);
