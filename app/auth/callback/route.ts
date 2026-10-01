@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
 
-const DOMAIN_FALLBACK = "team.haat.delivery";
+const DOMAIN_FALLBACK = "haat.delivery";
 
 function safeNext(value: string | null) {
   return value && value.startsWith("/") && !value.startsWith("//") ? value : "/dashboard";

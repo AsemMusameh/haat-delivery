@@ -8,10 +8,7 @@ import { useEmployees } from "@/lib/hooks";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
 type RecordRow = { id: string; employee_id: string; record_type: string; title: string; description: string; occurred_at: string; severity: string; status: string; employee?: { full_name: string } | null };
-const fallbackRows: RecordRow[] = [
-  { id: "REC-1048", employee_id: "", employee: { full_name: "سامر نبيل" }, record_type: "written_warning", severity: "high", occurred_at: "2026-08-01", status: "under_review", title: "مخالفة إجراء التحقق من الطلب", description: "تحتاج الحالة إلى مراجعة المشرف وتوثيق الإجراء المتخذ." },
-  { id: "REC-1047", employee_id: "", employee: { full_name: "ليان سمير" }, record_type: "appreciation", severity: "low", occurred_at: "2026-07-30", status: "resolved", title: "تميز في معالجة حالة زبون", description: "تم توثيق الأداء المتميز وإغلاق السجل." },
-];
+const fallbackRows: RecordRow[] = [];
 const emptyDraft = { employee_id: "", record_type: "administrative_note", title: "", description: "", severity: "medium" };
 
 export default function Records() {

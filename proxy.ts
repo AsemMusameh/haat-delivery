@@ -1,6 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isLockedFeature } from "@/lib/locked-features";
 export async function proxy(request: NextRequest) {
+  if (isLockedFeature(request.nextUrl.pathname)) {
+    const dashboard = new URL("/dashboard", request.url);
+    dashboard.searchParams.set("notice", "under-construction");
+    return NextResponse.redirect(dashboard);
+  }
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const supabaseAuthEnabled =

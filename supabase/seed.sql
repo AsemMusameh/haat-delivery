@@ -1,4 +1,11 @@
 insert into public.departments(name,description,color) values
-('تشات الزبائن','التواصل مع الزبائن عبر المحادثة','#2563eb'),('تشات المرسلين','التواصل مع المرسلين عبر التشات فقط','#8b5cf6'),
-('فويس سنتر','التواصل الهاتفي مع الزبائن والمطاعم','#0f9f78'),('كنترول المرسلين','متابعة عمليات المرسلين','#f59e0b'),('قسم المنيو','إدارة قوائم وأسعار المطاعم','#e85d75') on conflict(name) do nothing;
+('Management','Management accounts','#b40d31'),
+('Quality Assurance','Quality assurance team','#16a34a'),
+('Shift Managers - Chat','Chat shift supervisors','#7c3aed'),
+('Shift Managers - Voice','Voice shift supervisors','#e11d48'),
+('Chat','Customer chat team','#2563eb'),
+('Voice Center','Voice center team','#db2777'),
+('Customer Service - WB','West Bank customer service','#dc2626'),
+('Connect Teams Updates','Connect teams updates','#0f6fb5')
+on conflict(name) do nothing;
 -- حسابات Auth التجريبية تُنشأ بواسطة: npm run seed:demo

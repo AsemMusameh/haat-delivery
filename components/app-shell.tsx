@@ -3,7 +3,7 @@
 import {
   AppWindow, Bell, Bookmark, BrainCircuit, ChartNoAxesCombined, ChevronLeft, ChevronRight,
   CircleDollarSign, CircleUserRound, ClipboardList, FileWarning, Globe2, Home,
-  KeyRound, LayoutGrid, LayoutList, LogOut, MapPinned, Megaphone, Menu, MessageCircleMore,
+  KeyRound, LayoutGrid, LayoutList, LockKeyhole, LogOut, MapPinned, Megaphone, Menu, MessageCircleMore,
   MessageSquareText, MessagesSquare, Moon, Plus, Plug, Search, Settings, Sparkles, Sun, Users,
   UtensilsCrossed, X, GraduationCap,
 } from "lucide-react";
@@ -12,6 +12,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { demoNotifications } from "@/lib/demo-data";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { isLockedFeature } from "@/lib/locked-features";
+import { useProfile } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 import { CelebrationStrip } from "./celebration-strip";
 import { useLocale } from "./locale-provider";
@@ -27,6 +29,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
   const [signingOut, setSigningOut] = useState(false);
   const { theme, toggle } = useTheme();
   const { locale, setLocale, t } = useLocale();
+  const profile = useProfile();
   const ar = locale === "ar";
   const showCelebrationStrip = path === "/community" || path === "/messages";
 
@@ -98,6 +101,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
     try {
       if (isSupabaseConfigured) await createClient()?.auth.signOut({ scope: "local" });
     } finally {
+      window.localStorage.removeItem("haat-current-user");
       window.location.replace("/login");
     }
   };
@@ -116,6 +120,11 @@ export function AppShell({ children, title, admin = false, action }: { children:
             <div className="space-y-0.5">
               {group.items.map(({ href, label, icon: Icon }) => {
                 const active = path === href || path.startsWith(href + "/");
+                if (isLockedFeature(href)) return <div key={href} aria-disabled="true" className="sidebar-link flex cursor-not-allowed items-center gap-3 opacity-50">
+                  <span className="sidebar-icon"><Icon size={17} /></span>
+                  <span className="min-w-0 flex-1 truncate">{label}</span>
+                  <span className="flex items-center gap-1 rounded-full bg-[var(--surface-2)] px-2 py-1 text-[9px] font-bold text-[var(--muted)]"><LockKeyhole size={10} />{ar ? "قيد الإنشاء" : "Coming soon"}</span>
+                </div>;
                 return <Link prefetch key={href} href={href} onClick={() => setOpen(false)} className={cn("sidebar-link group flex items-center gap-3", active && "active")}>
                   <span className="sidebar-icon"><Icon size={17} /></span>
                   <span className="min-w-0 flex-1 truncate">{label}</span>
@@ -127,7 +136,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
           </section>)}
         </nav>
         <div className="sidebar-footer">
-          <Link href="/profile" className="sidebar-user"><span className="sidebar-avatar">A<i /></span><div className="min-w-0 flex-1"><b className="block truncate text-xs">Asem Msameh</b><span className="mt-0.5 block truncate text-[10px]">Customer Chat</span></div>{ar ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}</Link>
+          <Link href="/profile" className="sidebar-user"><span className="sidebar-avatar">{profile.full_name[0]}<i /></span><div className="min-w-0 flex-1"><b className="block truncate text-xs">{profile.full_name}</b><span className="mt-0.5 block truncate text-[10px]">{profile.department?.name}</span></div>{ar ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}</Link>
           <button type="button" className="sidebar-logout w-full" onClick={signOut} disabled={signingOut}><LogOut size={16} /><span>{signingOut ? (ar ? "جارٍ تسجيل الخروج..." : "Signing out...") : t.logout}</span></button>
         </div>
       </aside>
@@ -150,12 +159,16 @@ export function AppShell({ children, title, admin = false, action }: { children:
       {showCelebrationStrip && <CelebrationStrip />}
       <main className="workspace-main w-full p-4 sm:p-7">{children}</main>
       <nav className="mobile-dock fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 px-1 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 lg:hidden">
-        {mobileNav.map(({ href, label, icon: Icon }) => <Link prefetch key={href} href={href} className={cn("flex flex-col items-center gap-1 text-[9px] text-[var(--muted)]", (path === href || path.startsWith(href + "/")) && "font-bold text-[var(--primary)]")}><Icon size={19} />{label}</Link>)}
+        {mobileNav.map(({ href, label, icon: Icon }) => isLockedFeature(href)
+          ? <div key={href} aria-disabled="true" className="flex cursor-not-allowed flex-col items-center gap-1 text-[9px] text-[var(--muted)] opacity-45"><span className="relative"><Icon size={19} /><LockKeyhole className="absolute -bottom-1 -right-2 rounded-full bg-[var(--surface)] p-0.5" size={11} /></span>{label}</div>
+          : <Link prefetch key={href} href={href} className={cn("flex flex-col items-center gap-1 text-[9px] text-[var(--muted)]", (path === href || path.startsWith(href + "/")) && "font-bold text-[var(--primary)]")}><Icon size={19} />{label}</Link>)}
       </nav>
 
       {commandOpen && <div className="command-backdrop" onMouseDown={() => setCommandOpen(false)}><section className="command-panel" onMouseDown={(event) => event.stopPropagation()} role="dialog" aria-modal="true" aria-label={ar ? "بحث سريع" : "Quick search"}>
         <header><Search size={20} /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder={ar ? "اكتب اسم صفحة أو مهمة..." : "Type a page or task..."} /><button onClick={() => setCommandOpen(false)} aria-label={ar ? "إغلاق" : "Close"}><X size={18} /></button></header>
-        <div className="command-results"><span>{ar ? "انتقال سريع" : "Quick jump"}</span>{filteredNav.map(({ href, label, icon: Icon }) => <button key={href} onClick={() => go(href)}><i><Icon size={18} /></i><b>{label}</b><small>{href}</small><ChevronLeft size={16} /></button>)}{filteredNav.length === 0 && <p>{ar ? "لا توجد نتيجة مطابقة" : "No matching result"}</p>}</div>
+        <div className="command-results"><span>{ar ? "انتقال سريع" : "Quick jump"}</span>{filteredNav.map(({ href, label, icon: Icon }) => isLockedFeature(href)
+          ? <button key={href} disabled className="cursor-not-allowed opacity-50"><i><Icon size={18} /></i><b>{label}</b><small>{ar ? "قيد الإنشاء" : "Coming soon"}</small><LockKeyhole size={15} /></button>
+          : <button key={href} onClick={() => go(href)}><i><Icon size={18} /></i><b>{label}</b><small>{href}</small><ChevronLeft size={16} /></button>)}{filteredNav.length === 0 && <p>{ar ? "لا توجد نتيجة مطابقة" : "No matching result"}</p>}</div>
         <footer><span><kbd>Esc</kbd> {ar ? "إغلاق" : "Close"}</span><span><kbd>↵</kbd> {ar ? "فتح" : "Open"}</span></footer>
       </section></div>}
     </div>

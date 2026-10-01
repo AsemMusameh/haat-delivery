@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { AppShell, SearchBox } from "@/components/app-shell";
 import { useDepartments, useEmployees } from "@/lib/hooks";
-import { departments as demoDepartments } from "@/lib/demo-data";
 import { formatDate } from "@/lib/utils";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -115,7 +114,7 @@ export default function Employees() {
               ({items.length})
             </span>
           </h2>
-          <span className="text-xs text-[var(--muted)]">142 نشط · 8 معطّل</span>
+          <span className="text-xs text-[var(--muted)]">{employees.filter((employee) => employee.is_active).length} نشط · {employees.filter((employee) => !employee.is_active).length} معطّل</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[900px] text-right text-xs">

@@ -1,19 +1,57 @@
-import type { Announcement, Department, NotificationItem, Profile } from "./types";
+import type { Announcement, Department, NotificationItem, Profile, Role } from "./types";
+
 export const departments: Department[] = [
-  { id: "d1", name: "تشات الزبائن", color: "#2563eb" }, { id: "d2", name: "تشات المرسلين", color: "#8b5cf6" },
-  { id: "d3", name: "فويس سنتر", color: "#0f9f78" }, { id: "d4", name: "كنترول المرسلين", color: "#f59e0b" },
-  { id: "d5", name: "قسم المنيو", color: "#e85d75" },
+  { id: "management", name: "Management", color: "#b40d31" },
+  { id: "quality-assurance", name: "Quality Assurance", color: "#16a34a" },
+  { id: "shift-managers-chat", name: "Shift Managers - Chat", color: "#7c3aed" },
+  { id: "shift-managers-voice", name: "Shift Managers - Voice", color: "#e11d48" },
+  { id: "chat", name: "Chat", color: "#2563eb" },
+  { id: "voice-center", name: "Voice Center", color: "#db2777" },
+  { id: "customer-service-wb", name: "Customer Service - WB", color: "#dc2626" },
+  { id: "connect-teams-updates", name: "Connect Teams Updates", color: "#0f6fb5" },
 ];
-export const demoProfile: Profile = { id:"u1", employee_id:"1001", full_name:"Asem Msameh", email:"asem.msameh@team.haat.delivery", department_id:"d1", department:departments[0], role:"admin", is_active:true, unread_count:3, last_sign_in_at:new Date().toISOString() };
-const now = new Date("2026-08-03T16:00:00+03:00").getTime();
-export const demoAnnouncements: Announcement[] = [
-  { id:"a1", title:"تحديث عاجل على آلية معالجة الطلبات المتأخرة", body:"يرجى الالتزام بالإجراء المحدّث لمعالجة الطلبات المتأخرة، والتأكد من توثيق سبب التأخير قبل تحويل الحالة إلى فريق المتابعة. يبدأ تطبيق الإجراء من الوردية الحالية.", priority:"urgent", status:"published", author_id:"m1", author:{full_name:"أحمد منصور"}, published_at:new Date(now-42*60*1000).toISOString(), is_pinned:true, requires_acknowledgement:true, target_label:"جميع الأقسام", read_count:119, recipient_count:150, is_read:false, attachments:[{id:"at1",announcement_id:"a1",file_name:"إجراء-الطلبات-المتأخرة.pdf",file_url:"#",file_type:"application/pdf",file_size:820000}] },
-  { id:"a2", title:"جدول التدريب الأسبوعي لفريق خدمة الزبائن", body:"تم اعتماد جدول التدريب للأسبوع القادم. يرجى مراجعة الموعد المخصص لك والتنسيق مع مشرف الوردية عند وجود أي تعارض.", priority:"important", status:"published", author_id:"m2", author:{full_name:"سارة خالد"}, published_at:new Date(now-5*60*60*1000).toISOString(), is_pinned:false, requires_acknowledgement:true, target_label:"تشات الزبائن، فويس سنتر", read_count:51, recipient_count:64, is_read:false, attachments:[] },
-  { id:"a3", title:"إرشادات التعامل مع تحديثات المنيو", body:"عند استلام تعديل جديد من المطعم، تأكد من مطابقة الأسعار والصور قبل اعتماد التحديث، ثم أضف ملاحظة واضحة في سجل التعديلات.", priority:"normal", status:"published", author_id:"m1", author:{full_name:"أحمد منصور"}, published_at:new Date(now-26*60*60*1000).toISOString(), is_pinned:false, requires_acknowledgement:false, target_label:"قسم المنيو", read_count:20, recipient_count:23, is_read:true, read_at:new Date(now-20*60*60*1000).toISOString(), is_bookmarked:true, attachments:[] },
-  { id:"a4", title:"تذكير بسياسة استراحة الوردية", body:"الرجاء التنسيق مع المشرف قبل بدء الاستراحة لضمان استمرارية التغطية وعدم تراكم المحادثات.", priority:"normal", status:"published", author_id:"m2", author:{full_name:"سارة خالد"}, published_at:new Date(now-3*86400000).toISOString(), is_pinned:false, requires_acknowledgement:true, target_label:"جميع الأقسام", read_count:142, recipient_count:150, is_read:false, attachments:[] },
+
+type StaffGroup = { departmentId: string; role?: Role; names: string[] };
+const staffGroups: StaffGroup[] = [
+  { departmentId: "management", role: "manager", names: ["Mohammad Moayyad", "Abdullah Alsayed"] },
+  { departmentId: "quality-assurance", names: ["Mujahed", "Abaq Ayman", "Osama Herzallah"] },
+  { departmentId: "shift-managers-chat", role: "supervisor", names: ["Sami Moayyad", "Abdulhameed Janem"] },
+  { departmentId: "shift-managers-voice", role: "supervisor", names: ["Mahmoud Shaheen", "Mohammad Thneibe", "Asem Musameh"] },
+  { departmentId: "chat", names: [
+    "Tala Barham", "Athar Bawaqneh", "Noor Thiab", "Aman Salman", "Zainab", "Mahmoud Hantash", "Yazan Arar",
+    "Abdalrhman Jayosi", "Aws Kharouf", "Mohammad Jarrad", "Mohammad Zerie", "Abed Alrahman Hej...", "Ayham Shar'ab",
+    "Ameer Taney", "Tameem Dehmes", "Adam Ghanem", "Mohammad Abu S...", "Yaqeen Safarini", "Ahmad Alya", "Jawad Qablawi",
+  ] },
+  { departmentId: "voice-center", names: [
+    "Asmaa Abedeljawad", "Khaled Faqeeh", "Mays Hamdan", "Masa Belbeisi", "Batool Qaise", "Mera Abu Khalil", "Heba Elayan",
+    "Suhaib Hassan", "Qutada Saleh", "Mohammad Noor", "Sami Taweel", "Ahmed Jarrar", "Mohammad Saida", "Ahmed Awad",
+    "Abed Alrahman Yah...", "Mohammad Abu L...", "Abd Naghnaghe", "Kareem Kittaneh", "Alaa Abu Shanab", "Jihad Abu Libdah",
+    "Muntaser Jbareen", "Mahmood Saddar",
+  ] },
+  { departmentId: "customer-service-wb", names: ["Asil Ya'qoub", "Ja'far Al-far", "Emad Masri", "Mohammad Kittaneh", "Abdullah Saniora", "Jaber Naje"] },
+  { departmentId: "connect-teams-updates", names: ["Lara Nasrallah", "Marah Helal", "Bassel DeBaas", "Sara Jbareen", "Khaled Masarweh", "Majd Younis", "Mohammad Haroon"] },
 ];
-export const demoNotifications: NotificationItem[] = [
-  {id:"n1",title:"تعميم عاجل جديد",body:"تحديث آلية معالجة الطلبات المتأخرة",is_read:false,created_at:new Date(now-40*60*1000).toISOString(),announcement_id:"a1"},
-  {id:"n2",title:"تذكير بالقراءة",body:"لديك تعميم مهم بانتظار التأكيد",is_read:false,created_at:new Date(now-4*60*60*1000).toISOString(),announcement_id:"a2"},
-];
-export const demoEmployees: Profile[] = Array.from({length:12},(_,i)=>({id:`e${i}`,employee_id:String(1001+i),full_name:["Asem Msameh","ليان سمير","رامي عادل","نور الحسن","كرم خالد","آية محمود","عمر سليم","جنى علي","سامر نبيل","ميس أحمد","يزن وائل","دانا فؤاد"][i],email:i===0?"asem.msameh@team.haat.delivery":`staff${i+1}@team.haat.delivery`,department_id:departments[i%5].id,department:departments[i%5],role:i===0?"admin":i<3?"supervisor":"employee",is_active:i!==10,last_sign_in_at:new Date(now-i*7200000).toISOString(),unread_count:i%4}));
+
+const emailLocalPart = (name: string) => name.toLowerCase().replaceAll("'", "").replaceAll("...", "").replace(/[^a-z0-9]+/g, ".").replace(/^\.|\.$/g, "");
+const staff = staffGroups.flatMap((group) => group.names.map((name) => ({ name, departmentId: group.departmentId, role: group.role ?? "employee" as Role })));
+
+export const demoEmployees: Profile[] = staff.map((person, index) => {
+  const department = departments.find((item) => item.id === person.departmentId)!;
+  return {
+    id: `staff-${String(index + 1).padStart(3, "0")}`,
+    employee_id: `HAAT-${String(index + 1).padStart(4, "0")}`,
+    full_name: person.name,
+    email: `${emailLocalPart(person.name)}@haat.delivery`,
+    department_id: person.departmentId,
+    department,
+    role: person.role,
+    is_active: true,
+    unread_count: 0,
+  };
+});
+
+export const rosterEmails = new Set(demoEmployees.map((employee) => employee.email.toLowerCase()));
+export const managerEmails = new Set(demoEmployees.filter((employee) => employee.role === "manager").map((employee) => employee.email.toLowerCase()));
+export const demoProfile = demoEmployees[0];
+export const demoAnnouncements: Announcement[] = [];
+export const demoNotifications: NotificationItem[] = [];
