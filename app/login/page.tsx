@@ -94,7 +94,7 @@ export default function Login() {
         {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
       </button>
       <div className="hub-login-wrap">
-        <header className="hub-login-title"><h2>HAAT <strong>Tulkarm Office</strong></h2></header>
+        <header className="hub-login-title"><img src="/haat-logo-transparent.png" alt="HAAT" /></header>
         <form className="hub-login-card" onSubmit={submit}>
           <label><b>{copy.email}</b><div><Mail size={18} /><input value={email} onChange={(event) => setEmail(event.target.value)} required autoComplete="username" placeholder="you@haat.delivery" /></div></label>
           <label><span><b>{copy.password}</b><button type="button" onClick={() => toast.info("Contact the site administrator to reset your password")}>{copy.forgot}</button></span><div><LockKeyhole size={18} /><input type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} required autoComplete="current-password" /><button type="button" className="hub-login-eye" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Hide password" : "Show password"}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></div></label>
