@@ -2,7 +2,7 @@
 
 import {
   AppWindow, Bell, Bookmark, BrainCircuit, ChartNoAxesCombined, ChevronLeft, ChevronRight,
-  CircleDollarSign, CircleUserRound, ClipboardList, FileWarning, Globe2, Home,
+  CircleDollarSign, CircleUserRound, ClipboardList, FileWarning, Home,
   KeyRound, LayoutGrid, LayoutList, LockKeyhole, LogOut, MapPinned, Megaphone, Menu, MessageCircleMore,
   MessageSquareText, MessagesSquare, Moon, Plus, Plug, Search, Settings, Sparkles, Sun, Users,
   UtensilsCrossed, X, GraduationCap,
@@ -29,7 +29,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
   const [signingOut, setSigningOut] = useState(false);
   const [sessionProfile, setSessionProfile] = useState<(typeof demoEmployees)[number] | null>(null);
   const { theme, toggle } = useTheme();
-  const { locale, setLocale, t } = useLocale();
+  const { locale, t } = useLocale();
   const profile = useProfile();
   const activeProfile = sessionProfile ?? profile;
   const ar = locale === "ar";
@@ -165,7 +165,6 @@ export function AppShell({ children, title, admin = false, action }: { children:
           {action}
           <button className="topbar-search hidden md:flex" onClick={() => setCommandOpen(true)}><Search size={16} /><span>{ar ? "ابحث أو انتقل..." : "Search or jump..."}</span><kbd>⌘K</kbd></button>
           <Link href={shellAdmin ? "/admin/announcements/new" : "/requests?new=other"} className="toolbar-btn toolbar-primary" aria-label={ar ? "إضافة جديد" : "Create new"}><Plus size={18} /></Link>
-          <button data-no-auto-translate className="toolbar-btn hidden sm:flex" onClick={() => setLocale(ar ? "en" : "ar")} aria-label={ar ? "تبديل اللغة" : "Switch language"}><Globe2 size={18} /><span className="text-xs font-bold">{ar ? "EN" : "ع"}</span></button>
           <button className="toolbar-btn" onClick={toggle} aria-label={ar ? "تبديل الوضع" : "Toggle theme"}>{theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}</button>
           <Link href="/notifications" className="toolbar-btn relative" aria-label={t.notifications}><Bell size={18} /><i className="absolute left-2 top-2 size-2 rounded-full bg-[var(--primary)] ring-2 ring-white" /></Link>
         </div>

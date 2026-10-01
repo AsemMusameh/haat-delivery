@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Check, CircleDollarSign, Copy, FileCheck2, Pencil, Plus, Search, ShieldCheck, SlidersHorizontal, Trash2, X,
+  Check, CircleDollarSign, Copy, Pencil, Plus, Search, ShieldCheck, SlidersHorizontal, Trash2, X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -42,8 +42,6 @@ export default function AdminCompensationsPage() {
       <div><span><ShieldCheck size={15}/>سياسة HAAT · النسخة 1.0</span><h2>محرّر سياسة التعويضات</h2><p>أضف الحالات وحدود التأخير وقيمة التعويض والمتطلبات، وستظهر التغييرات مباشرة للموظفين.</p></div>
       <i><SlidersHorizontal size={32}/></i>
     </section>
-    {!isSupabaseConfigured&&<div className="admin-demo-note"><FileCheck2 size={18}/><div><b>وضع العرض التجريبي</b><span>يمكنك تجربة الإضافة والتعديل الآن. يصبح الحفظ دائمًا لجميع الموظفين عند ربط قاعدة البيانات.</span></div></div>}
-
     <div className="grid gap-3 sm:grid-cols-3 my-5">
       <Metric label="إجمالي القواعد" value={rules.length} tone="red"/><Metric label="القواعد الفعالة" value={rules.filter(item=>item.is_active).length} tone="green"/><Metric label="الحالات المغطاة" value={new Set(rules.map(item=>item.situation)).size} tone="gold"/>
     </div>

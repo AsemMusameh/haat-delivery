@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo } from "react";
 import { legacyEnglishEntries, Locale, messages } from "@/lib/i18n";
 
 type LocaleMessages={ [K in keyof typeof messages.ar]: string };
@@ -31,10 +31,10 @@ function translateTree(root:ParentNode){
 }
 function restoreArabic(){for(const node of translatedNodes){const value=originalText.get(node);if(value!==undefined&&node.isConnected)node.textContent=value;originalText.delete(node);translatedText.delete(node)}for(const el of translatedElements){const originals=originalAttributes.get(el);if(el.isConnected)originals?.forEach((v,k)=>el.setAttribute(k,v));originalAttributes.delete(el)}translatedNodes.clear();translatedElements.clear()}
 export function LocaleProvider({children}:{children:React.ReactNode}){
- const[locale,setLocaleState]=useState<Locale>("ar");
- useEffect(()=>{const saved=localStorage.getItem("preferred-locale") as Locale|null;if(saved==="ar"||saved==="en")setLocaleState(saved)},[]);
+ const locale:Locale="ar";
+ useEffect(()=>{localStorage.setItem("preferred-locale","ar")},[]);
  useEffect(()=>{document.documentElement.lang=locale;document.documentElement.dir=locale==="ar"?"rtl":"ltr";if(locale==="ar"){restoreArabic();return}translateTree(document.body);const observer=new MutationObserver(records=>{for(const record of records){if(record.type==="characterData")translateTextNode(record.target);for(const added of record.addedNodes)if(added.nodeType===Node.TEXT_NODE||added instanceof Element)translateTree(added as ParentNode)}});observer.observe(document.body,{subtree:true,childList:true,characterData:true});return()=>observer.disconnect()},[locale]);
- const value=useMemo(()=>({locale,setLocale:(next:Locale)=>{setLocaleState(next);localStorage.setItem("preferred-locale",next)},t:messages[locale]}),[locale]);
+ const value=useMemo(()=>({locale,setLocale:()=>{},t:messages.ar}),[locale]);
  return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
 }
 export const useLocale=()=>useContext(LocaleContext);
