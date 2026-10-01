@@ -10,7 +10,7 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { demoNotifications } from "@/lib/demo-data";
+import { demoEmployees, demoNotifications } from "@/lib/demo-data";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { isLockedFeature } from "@/lib/locked-features";
 import { useProfile } from "@/lib/hooks";
@@ -27,10 +27,15 @@ export function AppShell({ children, title, admin = false, action }: { children:
   const [commandOpen, setCommandOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [signingOut, setSigningOut] = useState(false);
+  const [sessionProfile, setSessionProfile] = useState<(typeof demoEmployees)[number] | null>(null);
   const { theme, toggle } = useTheme();
   const { locale, setLocale, t } = useLocale();
   const profile = useProfile();
+  const activeProfile = sessionProfile ?? profile;
   const ar = locale === "ar";
+  const roleLabel = ({ employee: ar ? "موظف" : "Employee", supervisor: ar ? "مشرف" : "Supervisor", manager: ar ? "مدير" : "Manager", admin: ar ? "مسؤول نظام" : "Administrator" } as const)[activeProfile.role];
+  const roleAdmin = sessionProfile ? ["manager", "admin"].includes(sessionProfile.role) : admin;
+  const shellAdmin = admin || roleAdmin;
   const showCelebrationStrip = path === "/community" || path === "/messages";
 
   const employeeNav = [
@@ -66,13 +71,24 @@ export function AppShell({ children, title, admin = false, action }: { children:
     { href: "/admin/office-brain", label: ar ? "إدارة Office Brain" : "Manage Office Brain", icon: BrainCircuit },
     { href: "/admin/settings", label: t.settings, icon: Settings },
   ];
-  const groups = admin
-    ? [{ label: ar ? "إدارة المنصة" : "Management", items: adminNav }, { label: ar ? "عرض مساحة الموظف" : "Employee view", items: employeeNav.slice(0, 8) }]
+  const groups = shellAdmin
+    ? [{ label: ar ? "إدارة المنصة" : "Management", items: adminNav }]
     : [{ label: ar ? "العمل اليومي" : "Daily work", items: employeeNav.slice(0, 8) }, { label: ar ? "الأدوات والمتابعة" : "Tools & activity", items: employeeNav.slice(8) }];
-  const allNav = admin ? [...adminNav, ...employeeNav] : employeeNav;
+  const allNav = shellAdmin ? adminNav : employeeNav;
   const needle = query.trim().toLocaleLowerCase(ar ? "ar" : "en");
   const filteredNav = allNav.filter((item) => !needle || item.label.toLocaleLowerCase(ar ? "ar" : "en").includes(needle)).slice(0, 9);
-  const mobileNav = admin ? [adminNav[0], adminNav[3], adminNav[4], adminNav[2], adminNav.at(-1)!] : [employeeNav[0], employeeNav[1], employeeNav[2], employeeNav[10], employeeNav.at(-1)!];
+  const mobileNav = shellAdmin ? [adminNav[0], adminNav[3], adminNav[4], adminNav[2], adminNav.at(-1)!] : [employeeNav[0], employeeNav[1], employeeNav[2], employeeNav[10], employeeNav.at(-1)!];
+
+  useEffect(() => {
+    if (isSupabaseConfigured) return;
+    const id = window.localStorage.getItem("haat-current-user");
+    const current = demoEmployees.find((employee) => employee.id === id);
+    if (!current) { window.location.replace("/login"); return; }
+    setSessionProfile(current);
+    const privileged = ["manager", "admin"].includes(current.role);
+    if (privileged && !path.startsWith("/admin") && path !== "/profile") router.replace("/admin");
+    if (!privileged && path.startsWith("/admin")) router.replace("/dashboard");
+  }, [path, router]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -111,7 +127,6 @@ export function AppShell({ children, title, admin = false, action }: { children:
       <aside className={cn("sidebar fixed inset-y-0 z-50 flex w-[282px] flex-col p-3 transition-transform duration-300 lg:translate-x-0", open ? "translate-x-0" : ar ? "translate-x-full lg:translate-x-0" : "-translate-x-full lg:translate-x-0")} style={ar ? { right: 0, left: "auto" } : { left: 0, right: "auto" }}>
         <div className="sidebar-head flex items-center justify-between">
           <Logo />
-          <button className="sidebar-close lg:hidden" onClick={() => setOpen(false)} aria-label={ar ? "إغلاق القائمة" : "Close menu"}><X size={17} /></button>
         </div>
         <button className="sidebar-command" onClick={() => setCommandOpen(true)}><Search size={16} /><span>{ar ? "بحث سريع في المنصة" : "Quick search"}</span><kbd>⌘K</kbd></button>
         <nav className="sidebar-scroll flex-1 overflow-y-auto py-2">
@@ -136,7 +151,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
           </section>)}
         </nav>
         <div className="sidebar-footer">
-          <Link href="/profile" className="sidebar-user"><span className="sidebar-avatar">{profile.full_name[0]}<i /></span><div className="min-w-0 flex-1"><b className="block truncate text-xs">{profile.full_name}</b><span className="mt-0.5 block truncate text-[10px]">{profile.department?.name}</span></div>{ar ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}</Link>
+          <Link href="/profile" className="sidebar-user"><span className="sidebar-avatar">{activeProfile.full_name[0]}<i /></span><div className="min-w-0 flex-1"><b className="block truncate text-xs">{activeProfile.full_name}</b><span className="mt-0.5 block truncate text-[10px]">{roleLabel} · {activeProfile.department?.name}</span></div>{ar ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}</Link>
           <button type="button" className="sidebar-logout w-full" onClick={signOut} disabled={signingOut}><LogOut size={16} /><span>{signingOut ? (ar ? "جارٍ تسجيل الخروج..." : "Signing out...") : t.logout}</span></button>
         </div>
       </aside>
@@ -145,11 +160,11 @@ export function AppShell({ children, title, admin = false, action }: { children:
 
       <header className="topbar sticky top-0 z-30 flex h-[74px] items-center gap-3 px-4 sm:px-7">
         <button className="toolbar-btn lg:hidden" onClick={() => setOpen(true)} aria-label={ar ? "فتح القائمة" : "Open menu"}><Menu size={20} /></button>
-        <div className="min-w-0"><div className="topbar-context"><LayoutGrid size={11} />{admin ? (ar ? "الإدارة" : "Admin") : (ar ? "مساحة العمل" : "Workspace")}</div><h1 className="truncate text-lg font-black sm:text-xl">{title}</h1></div>
+        <div className="min-w-0"><div className="topbar-context"><LayoutGrid size={11} />{shellAdmin ? (ar ? "الإدارة" : "Admin") : (ar ? "مساحة العمل" : "Workspace")}</div><h1 className="truncate text-lg font-black sm:text-xl">{title}</h1></div>
         <div className="mr-auto flex items-center gap-2 rtl:mr-auto ltr:ml-auto ltr:mr-0">
           {action}
           <button className="topbar-search hidden md:flex" onClick={() => setCommandOpen(true)}><Search size={16} /><span>{ar ? "ابحث أو انتقل..." : "Search or jump..."}</span><kbd>⌘K</kbd></button>
-          <Link href={admin ? "/admin/announcements/new" : "/requests?new=other"} className="toolbar-btn toolbar-primary" aria-label={ar ? "إضافة جديد" : "Create new"}><Plus size={18} /></Link>
+          <Link href={shellAdmin ? "/admin/announcements/new" : "/requests?new=other"} className="toolbar-btn toolbar-primary" aria-label={ar ? "إضافة جديد" : "Create new"}><Plus size={18} /></Link>
           <button data-no-auto-translate className="toolbar-btn hidden sm:flex" onClick={() => setLocale(ar ? "en" : "ar")} aria-label={ar ? "تبديل اللغة" : "Switch language"}><Globe2 size={18} /><span className="text-xs font-bold">{ar ? "EN" : "ع"}</span></button>
           <button className="toolbar-btn" onClick={toggle} aria-label={ar ? "تبديل الوضع" : "Toggle theme"}>{theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}</button>
           <Link href="/notifications" className="toolbar-btn relative" aria-label={t.notifications}><Bell size={18} /><i className="absolute left-2 top-2 size-2 rounded-full bg-[var(--primary)] ring-2 ring-white" /></Link>

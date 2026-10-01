@@ -86,7 +86,6 @@ export default function Login() {
 
   return <main className="hub-login" dir="ltr">
     <section className="hub-login-brand">
-      <div className="hub-login-brand-top"><img src="/haat-logo.png" alt="HAAT" /></div>
       <div className="hub-login-brand-copy">
         <h1>HAAT</h1>
         <p>One workspace for daily operations, employee services and company updates.</p>

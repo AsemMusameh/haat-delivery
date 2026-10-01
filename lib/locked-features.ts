@@ -6,6 +6,7 @@ export const LOCKED_FEATURE_ROUTES = [
   "/simulator",
   "/office-brain",
   "/admin/office-brain",
+  "/admin/integrations",
 ] as const;
 
 export function isLockedFeature(pathname: string) {
