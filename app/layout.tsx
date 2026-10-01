@@ -6,8 +6,8 @@ import { Providers } from "@/components/providers";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://haat-employee-hub.montaser-jabren.chatgpt.site"),
-  title: "HAAT Employee Hub",
+  metadataBase: new URL("https://haat-employee-hub-asem.asemmusameh265.chatgpt.site"),
+  title: "HAAT | Tulkarm Office",
   description: "HAAT employee operations, quality and AI platform",
   manifest: "/manifest.webmanifest",
   other: {
@@ -19,13 +19,13 @@ export const metadata: Metadata = {
     apple: "/icons/icon.svg",
   },
   openGraph: {
-    title: "HAAT Employee Hub",
+    title: "HAAT | Tulkarm Office",
     description: "Operations, Quality & AI Platform",
-    images: [{ url: "/og.png", width: 1731, height: 909, alt: "HAAT Employee Hub" }],
+    images: [{ url: "/og.png", width: 1731, height: 909, alt: "HAAT" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "HAAT Employee Hub",
+    title: "HAAT | Tulkarm Office",
     description: "Operations, Quality & AI Platform",
     images: ["/og.png"],
   },

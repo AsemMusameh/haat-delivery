@@ -74,8 +74,8 @@ export const legacyEnglish: Record<string,string> = {
   "إرشادات التعامل مع تحديثات المنيو":"Menu update handling guidelines",
   "تذكير بسياسة استراحة الوردية":"Shift break policy reminder",
   "تحديث مهم على سياسة خدمة الزبائن":"Important customer service policy update",
-  "منصة تعميمات الشركة":"HAAT Employee Hub",
-  "منصة التعميمات":"HAAT Employee Hub",
+  "منصة تعميمات الشركة":"HAAT",
+  "منصة التعميمات":"HAAT",
   "تواصل أوضح، فريق أكثر اطلاعًا":"Clearer communication, better informed teams",
   "منصة داخلية آمنة · جميع الحقوق محفوظة":"Secure internal platform · All rights reserved",
   "أدخل بيانات حسابك للوصول إلى التعميمات.":"Enter your company credentials to access announcements.",
@@ -187,7 +187,7 @@ export const legacyEnglish: Record<string,string> = {
   "موظف":"Employee","مشرف قسم":"Department Supervisor","مشرف":"Supervisor","مدير":"Manager","مسؤول نظام":"System Admin","نشط":"Active","معطّل":"Disabled",
   "تشات الزبائن":"Customer Chat","تشات المرسلين":"Chat Delivery","فويس سنتر":"Voice Center","كنترول المرسلين":"Control","قسم المنيو":"Menu",
   "العربية":"Arabic","تبديل اللغة":"Switch language","تبديل الوضع":"Toggle theme","فتح القائمة":"Open menu","إغلاق القائمة":"Close menu",
-  "شركة التوصيل":"HAAT","أنت غير متصل بالإنترنت":"You are offline","ثبّت المنصة على هاتفك":"Install HAAT Employee Hub","تثبيت التطبيق":"Install app",
+  "شركة التوصيل":"HAAT","أنت غير متصل بالإنترنت":"You are offline","ثبّت المنصة على هاتفك":"Install HAAT","تثبيت التطبيق":"Install app",
   "تمت القراءة":"Read","قرأوا":"Read","لم يقرؤوا":"Unread","قرأ":"Read","لم يقرأ":"Unread",
 };
 

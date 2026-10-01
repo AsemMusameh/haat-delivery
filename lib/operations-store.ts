@@ -43,7 +43,7 @@ export async function ensureOperationsStore() {
   ]);
   const stamp = now();
   const defaults = [
-    ["portal_title","اسم المنصة","HAAT Employee Hub","عام"],
+    ["portal_title","اسم المنصة","HAAT","عام"],
     ["support_phone","رقم الدعم الداخلي","لم تتم إضافته بعد","التواصل"],
     ["support_email","بريد الدعم","support@haat.ps","التواصل"],
     ["work_guide_title","عنوان دليل العمل","دليل خدمة الزبائن","المحتوى"],
