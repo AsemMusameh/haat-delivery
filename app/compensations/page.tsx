@@ -113,6 +113,7 @@ export default function CompensationsPage() {
   const reset=()=>{setIssueCategory("quality");setSituation("cold_with_delay");alignAnswers("cold_with_delay",11,"yes","no");setOrderTotal(100);setDeliveryFee(15);setItemValue(40)};
 
   return <AppShell title={ar ? "التعويضات" : "Compensations"}>
+    <div className="comp-page-shell">
     <section className="comp-hero compact">
       <i className="comp-hero-mark"><CircleDollarSign size={31}/></i>
       <div className="comp-hero-copy"><h2>{ar ? "التعويضات" : "Compensations"}</h2><p>{ar ? "اختار الحالة وخذ القرار المناسب فورًا." : "Choose the case and get the right decision instantly."}</p></div>
@@ -122,9 +123,9 @@ export default function CompensationsPage() {
       <header className="smart-calculator-head"><div><span><Calculator size={16}/>{ar?"حاسبة التعويض":"Compensation calculator"}</span><h3>{ar?"ثلاث خطوات سريعة":"Three quick steps"}</h3></div><button type="button" onClick={reset}><RotateCcw size={15}/>{ar?"إعادة":"Reset"}</button></header>
       <div className="smart-calculator-body">
         <div className="smart-questions">
-          <section className="wizard-step"><header><i>1</i><div><strong>{ar?"نوع المشكلة":"Issue type"}</strong></div></header><div className="issue-cards">{(Object.keys(categoryCopy) as CompensationCategory[]).map(value=>{const Icon=categoryIcons[value];const copy=categoryCopy[value];return <button key={value} type="button" className={issueCategory===value?"active":""} onClick={()=>chooseCategory(value)}><i><Icon size={20}/></i><span><b>{ar?copy.ar:copy.en}</b></span>{issueCategory===value&&<CheckCircle2 size={17}/>}</button>})}</div></section>
-          <section className="wizard-step"><header><i>2</i><div><strong>{ar?"الحالة":"Case"}</strong></div></header><div className="situation-pills">{compensationSituations.filter(item=>item.category===issueCategory).map(item=><button type="button" key={item.id} className={situation===item.id?"active":""} onClick={()=>chooseSituation(item.id)}>{ar?item.ar:item.en}{situation===item.id&&<Check size={14}/>}</button>)}</div></section>
-          <section className="wizard-step"><header><i>3</i><div><strong>{ar?"التفاصيل":"Details"}</strong></div></header><div className="quick-questions">
+          <section className="wizard-step"><header><i>1</i><div><strong>{ar?"نوع المشكلة":"Issue type"}</strong><span>{ar?"اختر السبب الرئيسي":"Choose the main reason"}</span></div></header><div className="issue-cards">{(Object.keys(categoryCopy) as CompensationCategory[]).map(value=>{const Icon=categoryIcons[value];const copy=categoryCopy[value];return <button key={value} type="button" className={issueCategory===value?"active":""} onClick={()=>chooseCategory(value)}><i><Icon size={20}/></i><span><b>{ar?copy.ar:copy.en}</b></span>{issueCategory===value&&<CheckCircle2 size={17}/>}</button>})}</div></section>
+          <section className="wizard-step"><header><i>2</i><div><strong>{ar?"الحالة":"Case"}</strong><span>{ar?"حدد الحالة الأقرب":"Select the closest case"}</span></div></header><div className="situation-pills">{compensationSituations.filter(item=>item.category===issueCategory).map(item=><button type="button" key={item.id} className={situation===item.id?"active":""} onClick={()=>chooseSituation(item.id)}>{ar?item.ar:item.en}{situation===item.id&&<Check size={14}/>}</button>)}</div></section>
+          <section className="wizard-step"><header><i>3</i><div><strong>{ar?"التفاصيل":"Details"}</strong><span>{ar?"أكمل الحقول المطلوبة فقط":"Complete only what is required"}</span></div></header><div className="quick-questions">
             {selectedSituation.usesDelay&&<div className="quick-question"><label>{ar?"كم مدة التأخير؟":"How long was the delay?"}</label><div className="delay-choices">{delayOptions.map(rule=><button type="button" key={`${rule.delay_min}-${rule.delay_max}`} className={delay>=Number(rule.delay_min)&&(rule.delay_max==null||delay<=rule.delay_max)?"active":""} onClick={()=>chooseDelay(rule)}>{delayLabel(rule,ar)}</button>)}</div></div>}
             {deliveryOptions.some(value=>value!=="na")&&<div className="quick-question"><label>{ar?"هل إعادة التوصيل متاحة؟":"Is redelivery available?"}</label><div className="yes-no-choices">{deliveryOptions.filter(value=>value!=="na").map(value=><button type="button" key={value} className={`${value} ${delivery===value?"active":""}`} onClick={()=>chooseDelivery(value)}>{value==="yes"?<Check size={17}/>:<X size={17}/>}<span>{triStateLabel(value,ar)}</span></button>)}</div></div>}
             {remakeOptions.some(value=>value!=="na")&&<div className="quick-question"><label>{ar?"هل وافق الزبون على إعادة التحضير؟":"Did the customer accept a remake?"}</label><div className="yes-no-choices">{remakeOptions.filter(value=>value!=="na").map(value=><button type="button" key={value} className={`${value} ${remake===value?"active":""}`} onClick={()=>setRemake(value)}>{value==="yes"?<Check size={17}/>:<X size={17}/>}<span>{triStateLabel(value,ar)}</span></button>)}</div></div>}
@@ -158,5 +159,6 @@ export default function CompensationsPage() {
         </table></div></details>})}{!filteredSituations.length&&<div className="p-10 text-center text-sm text-[var(--muted)]">{ar?"لا توجد نتائج.":"No results."}</div>}</div>
       </div>
     </details>
+    </div>
   </AppShell>;
 }
