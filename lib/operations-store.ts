@@ -62,7 +62,7 @@ export async function ensureOperationsStore() {
     ["ad_link","رابط الإعلان (اختياري)","","الإعلانات"],
   ];
   await database.batch(defaults.map(([key,label,value,group]) => database.prepare("INSERT OR IGNORE INTO portal_settings (key,label,value,group_name,updated_at) VALUES (?,?,?,?,?)").bind(key,label,value,group,stamp)));
-  const coverageSeedKey = "coverage-catalog-2026-10-02-v2";
+  const coverageSeedKey = "coverage-catalog-2026-10-02-v3";
   const coverageSeedApplied = await database.prepare("SELECT seed_key FROM portal_seed_versions WHERE seed_key=?").bind(coverageSeedKey).first();
   if (!coverageSeedApplied) {
     const areaCodes = defaultCoverageAreas.map((area) => area.code);
