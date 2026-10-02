@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Map, MapPin, Phone, Search, TestTube2 } from "lucide-react";
+import { CalendarClock, CheckCircle2, Clock3, Map, MapPin, MoonStar, Phone, Search, Sunrise, TestTube2 } from "lucide-react";
 import { coverageAreas as defaultCoverageAreas, type CoverageArea } from "@/lib/coverage-areas";
 export function CoverageMap() {
   const [coverageAreas, setCoverageAreas] = useState<CoverageArea[]>(defaultCoverageAreas);
@@ -23,6 +23,7 @@ export function CoverageMap() {
       ),
     [coverageAreas, query, showTests],
   );
+  const scheduledAreas = visible.filter((area) => area.hours?.length);
   return (
     <section className="card overflow-hidden">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--line)] p-5">
@@ -198,6 +199,7 @@ export function CoverageMap() {
                   {selected.name}
                 </p>
                 {selected.phone && <a dir="ltr" className="mt-2 inline-flex items-center gap-1 text-xs font-black text-[var(--primary)]" href={`tel:${selected.phone.replace(/\D/g, "")}`}><Phone size={13}/>{selected.phone}</a>}
+                {selected.hours?.[0] && <div className="mt-2 flex flex-wrap items-center gap-2 text-[8px] font-black"><span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-amber-700"><Sunrise size={11}/>{selected.hours[0].start}</span><span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-1 text-indigo-700"><MoonStar size={11}/>{selected.hours[0].end}</span>{selected.hours.length>1&&<span className="rounded-full bg-[var(--primary-soft)] px-2 py-1 text-[var(--primary)]">+{selected.hours.length-1} نطاق فرعي</span>}</div>}
               </div>
               <span className="grid size-12 place-items-center rounded-2xl bg-[var(--primary)] text-lg font-black text-white">
                 #{selected.code}
@@ -242,6 +244,7 @@ export function CoverageMap() {
                     {area.name}
                   </small>
                   {area.phone && <small dir="ltr" className="mt-1 block text-start text-[7px] font-bold text-[var(--primary)]">{area.phone}</small>}
+                  {area.hours?.[0] && <small className="mt-1 flex items-center gap-1 text-[7px] font-bold text-emerald-700"><Clock3 size={9}/>{area.hours[0].start} — {area.hours[0].end}</small>}
                 </span>
                 {selected.code === area.code && (
                   <CheckCircle2
@@ -257,6 +260,23 @@ export function CoverageMap() {
             الأرقام داخل الدوائر هي رموز المناطق، ورقم التواصل يظهر داخل بطاقة المنطقة عند توفره.
           </div>
         </aside>
+      </div>
+      <div className="border-t border-[var(--line)] bg-[var(--surface-2)] p-5 sm:p-7">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="flex items-center gap-3"><i className="grid size-11 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-500/20"><CalendarClock size={21}/></i><div><span className="text-[9px] font-black text-[var(--primary)]">OPERATING HOURS</span><h3 className="mt-1 text-lg font-black">ساعات عمل المناطق</h3><p className="mt-1 text-[9px] text-[var(--muted)]">الأوقات المعتمدة حسب آخر جدول تشغيل مرفق.</p></div></div>
+          <span className="rounded-full border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-[9px] font-black text-[var(--muted)]">{scheduledAreas.length} منطقة ظاهرة</span>
+        </div>
+        <div className="mt-5 grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
+          {scheduledAreas.map((area)=><article key={`hours-${area.code}`} className="group overflow-hidden rounded-[22px] border border-[var(--line)] bg-[var(--surface)] shadow-sm transition duration-200 hover:-translate-y-1 hover:border-[color-mix(in_srgb,var(--primary)_30%,var(--line))] hover:shadow-xl">
+            <header className="flex items-center gap-3 border-b border-[var(--line)] p-4"><span className="grid size-10 shrink-0 place-items-center rounded-[14px] bg-[var(--primary)] text-[11px] font-black text-white shadow-lg shadow-[color-mix(in_srgb,var(--primary)_20%,transparent)]">{area.code}</span><div className="min-w-0 flex-1"><h4 className="truncate text-xs font-black">{area.nameAr}</h4><p dir="ltr" className="mt-1 truncate text-start text-[7px] text-[var(--muted)]">{area.name}</p></div><Clock3 size={17} className="text-[var(--primary)] opacity-60 transition group-hover:opacity-100"/></header>
+            <div className="space-y-2 p-3">{area.hours!.map((hours,index)=><div key={`${area.code}-${index}`} className="rounded-2xl bg-[var(--surface-2)] p-3">
+              {hours.zone&&<b className="mb-2 block text-[9px]">{hours.zone}</b>}
+              <div className="grid grid-cols-2 gap-2"><span className="flex items-center gap-2 rounded-xl bg-amber-50 px-3 py-2 text-amber-800 dark:bg-amber-950/35 dark:text-amber-300"><Sunrise size={15}/><span><small className="block text-[6px] font-bold opacity-70">بداية العمل</small><b className="text-[9px]">{hours.start}</b></span></span><span className="flex items-center gap-2 rounded-xl bg-indigo-50 px-3 py-2 text-indigo-800 dark:bg-indigo-950/35 dark:text-indigo-300"><MoonStar size={15}/><span><small className="block text-[6px] font-bold opacity-70">نهاية العمل</small><b className="text-[9px]">{hours.end}</b></span></span></div>
+              {hours.exception&&<p className="mt-2 rounded-xl border border-dashed border-rose-200 bg-rose-50 px-3 py-2 text-[8px] font-bold leading-5 text-rose-700 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-300">استثناء: {hours.exception}</p>}
+            </div>)}</div>
+          </article>)}
+          {!scheduledAreas.length&&<div className="col-span-full rounded-2xl border border-dashed border-[var(--line)] bg-[var(--surface)] p-10 text-center text-xs text-[var(--muted)]">لا توجد ساعات عمل مطابقة للبحث الحالي.</div>}
+        </div>
       </div>
     </section>
   );

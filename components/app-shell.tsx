@@ -49,6 +49,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
     { href: "/requests", label: ar ? "الطلبات" : "Requests", icon: ClipboardList },
     { href: "/announcements", label: t.announcements, icon: Megaphone },
     { href: "/guidelines", label: "التوجيهات", icon: BookOpenCheck },
+    { href: "/coverage", label: ar ? "مناطق التشغيل" : "Operating Areas", icon: MapPinned },
     { href: "/daily-reports", label: "التقارير اليومية", icon: CalendarDays },
     { href: "/monthly-reports", label: "التقارير الشهرية", icon: FileImage },
     { href: "/order-complaints", label: "شكوى طلبية", icon: FileWarning },
@@ -100,7 +101,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
   const visibleEmployeeNav = employeeNav.filter((item) => accountPermissions[permissionForPath[item.href]] !== false);
   const groups = shellAdmin
     ? [{ label: ar ? "إدارة المنصة" : "Management", items: adminNav }]
-    : [{ label: ar ? "العمل اليومي" : "Daily work", items: visibleEmployeeNav.slice(0, 14) }, { label: ar ? "الأدوات والمتابعة" : "Tools & activity", items: visibleEmployeeNav.slice(14) }];
+    : [{ label: ar ? "العمل اليومي" : "Daily work", items: visibleEmployeeNav.slice(0, 15) }, { label: ar ? "الأدوات والمتابعة" : "Tools & activity", items: visibleEmployeeNav.slice(15) }];
   const allNav = shellAdmin ? adminNav : visibleEmployeeNav;
   const needle = query.trim().toLocaleLowerCase(ar ? "ar" : "en");
   const filteredNav = allNav.filter((item) => !needle || item.label.toLocaleLowerCase(ar ? "ar" : "en").includes(needle)).slice(0, 9);
@@ -127,6 +128,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
     const sharedRolePages = [
       "/profile",
       "/guidelines",
+      "/coverage",
       "/daily-reports",
       "/monthly-reports",
       "/announcements",

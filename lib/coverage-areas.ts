@@ -6,26 +6,34 @@ export type CoverageArea = {
   y: number;
   phone?: string;
   status?: "active" | "pilot" | "test";
+  hours?: CoverageHours[];
+};
+
+export type CoverageHours = {
+  zone?: string;
+  start: string;
+  end: string;
+  exception?: string;
 };
 
 // The official operating-area catalog supplied by the operations team.
 export const coverageAreas: CoverageArea[] = [
-  { code: 1, name: "Umm al-Fahem", nameAr: "أم الفحم", x: 194, y: 285 },
-  { code: 2, name: "Kfar Qaree - Arara", nameAr: "كفر قرع - عرعرة", x: 177, y: 318 },
-  { code: 4, name: "Baqa al-Gharbiyye", nameAr: "باقة الغربية", x: 145, y: 344 },
-  { code: 5, name: "Sakhnin - Arraba - Deir Hanna", nameAr: "سخنين - عرابة - دير حنا", x: 238, y: 154 },
+  { code: 1, name: "Umm al-Fahem", nameAr: "أم الفحم", x: 194, y: 285, hours: [{ start: "7 صباحًا", end: "3 فجرًا", exception: "الخميس والجمعة حتى 6 صباحًا" }] },
+  { code: 2, name: "Kfar Qaree - Arara", nameAr: "كفر قرع - عرعرة", x: 177, y: 318, hours: [{ start: "9 صباحًا", end: "3 فجرًا" }] },
+  { code: 4, name: "Baqa al-Gharbiyye", nameAr: "باقة الغربية", x: 145, y: 344, hours: [{ zone: "باقة الغربية", start: "8 صباحًا", end: "3 فجرًا" }, { zone: "حريش - عين ديمر", start: "11 صباحًا", end: "12 مساءً" }] },
+  { code: 5, name: "Sakhnin - Arraba - Deir Hanna", nameAr: "سخنين - عرابة - دير حنا", x: 238, y: 154, hours: [{ start: "9 صباحًا", end: "1:30 مساءً", exception: "الجمعة يبدأ العمل الساعة 10 صباحًا" }] },
   { code: 6, name: "Kfar Kana - Mashhad - Reineh", nameAr: "كفر كنا - المشهد - الرينة", x: 245, y: 199 },
-  { code: 7, name: "Shefa-Amr - I'billin", nameAr: "شفاعمرو - إعبلين", x: 169, y: 203 },
-  { code: 8, name: "Kfar Qasem", nameAr: "كفر قاسم", x: 169, y: 482 },
-  { code: 9, name: "Jerusalem", nameAr: "القدس", x: 225, y: 559 },
-  { code: 10, name: "Nazareth area", nameAr: "منطقة الناصرة", x: 228, y: 222 },
+  { code: 7, name: "Shefa-Amr - I'billin", nameAr: "شفاعمرو - إعبلين", x: 169, y: 203, hours: [{ start: "9 صباحًا", end: "2 مساءً" }] },
+  { code: 8, name: "Kfar Qasem", nameAr: "كفر قاسم", x: 169, y: 482, hours: [{ start: "9 صباحًا", end: "1 مساءً" }] },
+  { code: 9, name: "Jerusalem", nameAr: "القدس", x: 225, y: 559, hours: [{ zone: "شمال القدس", start: "8 صباحًا", end: "1 مساءً" }, { zone: "مركز القدس", start: "8 صباحًا", end: "1 مساءً" }, { zone: "جنوب القدس", start: "8 صباحًا", end: "1 مساءً" }] },
+  { code: 10, name: "Nazareth area", nameAr: "منطقة الناصرة", x: 228, y: 222, hours: [{ zone: "الطيرة", start: "7 صباحًا", end: "3 فجرًا", exception: "الخميس والجمعة 24 ساعة، والسبت يبدأ الساعة 8 صباحًا" }, { zone: "الرينة", start: "10 صباحًا", end: "2 فجرًا" }] },
   { code: 11, name: "Tira", nameAr: "الطيرة", x: 126, y: 426 },
-  { code: 12, name: "Taybeh - Tira - Qalansawe", nameAr: "الطيبة - الطيرة - قلنسوة", x: 139, y: 390 },
-  { code: 13, name: "Tamra - Kabul", nameAr: "طمرة - كابول", x: 170, y: 151 },
-  { code: 16, name: "Judaydah Almaker - Yarka - Yassif", nameAr: "الجديدة المكر - يركا - ياسيف", x: 149, y: 177 },
+  { code: 12, name: "Taybeh - Tira - Qalansawe", nameAr: "الطيبة - الطيرة - قلنسوة", x: 139, y: 390, hours: [{ zone: "الطيبة - قلنسوة", start: "8 صباحًا", end: "3 فجرًا" }, { zone: "الطيبة - الطيرة", start: "10 صباحًا", end: "1 مساءً" }] },
+  { code: 13, name: "Tamra - Kabul", nameAr: "طمرة - كابول", x: 170, y: 151, hours: [{ start: "9 صباحًا", end: "2 مساءً", exception: "الجمعة يبدأ العمل الساعة 1 ظهرًا" }] },
+  { code: 16, name: "Judaydah Almaker - Yarka - Yassif", nameAr: "الجديدة المكر - يركا - ياسيف", x: 149, y: 177, hours: [{ start: "10 صباحًا", end: "2 مساءً" }] },
   { code: 17, name: "Tulkarm", nameAr: "طولكرم", x: 142, y: 412 },
-  { code: 19, name: "Karmiel - Shaghur", nameAr: "كرمئيل - الشاغور", x: 199, y: 125 },
-  { code: 20, name: "Rahat", nameAr: "رهط", x: 172, y: 647 },
+  { code: 19, name: "Karmiel - Shaghur", nameAr: "كرمئيل - الشاغور", x: 199, y: 125, hours: [{ start: "8 صباحًا", end: "2 مساءً" }] },
+  { code: 20, name: "Rahat", nameAr: "رهط", x: 172, y: 647, hours: [{ start: "8 صباحًا", end: "2 مساءً" }] },
   { code: 23, name: "Afula", nameAr: "العفولة", x: 252, y: 262 },
   { code: 24, name: "Acre - Nahariya", nameAr: "عكا - نهاريا", x: 118, y: 86 },
   { code: 26, name: "Salfit", nameAr: "سلفيت", x: 219, y: 457 },
