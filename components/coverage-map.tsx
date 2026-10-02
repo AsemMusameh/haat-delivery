@@ -5,7 +5,7 @@ import { coverageAreas as defaultCoverageAreas, type CoverageArea } from "@/lib/
 export function CoverageMap() {
   const [coverageAreas, setCoverageAreas] = useState<CoverageArea[]>(defaultCoverageAreas);
   const [selected, setSelected] = useState(
-    defaultCoverageAreas.find((a) => a.code === 25)!,
+    defaultCoverageAreas.find((a) => a.code === 17) ?? defaultCoverageAreas[0],
   );
   const [query, setQuery] = useState("");
   const [showTests, setShowTests] = useState(false);

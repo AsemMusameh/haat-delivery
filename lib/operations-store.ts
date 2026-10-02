@@ -42,6 +42,8 @@ export async function ensureOperationsStore() {
       code INTEGER PRIMARY KEY,name TEXT NOT NULL,name_ar TEXT NOT NULL,x INTEGER NOT NULL,y INTEGER NOT NULL,status TEXT NOT NULL DEFAULT 'active',updated_at TEXT NOT NULL)`),
     database.prepare(`CREATE TABLE IF NOT EXISTS coverage_area_contacts (
       code INTEGER PRIMARY KEY,phone TEXT NOT NULL DEFAULT '',updated_at TEXT NOT NULL)`),
+    database.prepare(`CREATE TABLE IF NOT EXISTS portal_seed_versions (
+      seed_key TEXT PRIMARY KEY,applied_at TEXT NOT NULL)`),
   ]);
   const stamp = now();
   const defaults = [
@@ -60,7 +62,21 @@ export async function ensureOperationsStore() {
     ["ad_link","رابط الإعلان (اختياري)","","الإعلانات"],
   ];
   await database.batch(defaults.map(([key,label,value,group]) => database.prepare("INSERT OR IGNORE INTO portal_settings (key,label,value,group_name,updated_at) VALUES (?,?,?,?,?)").bind(key,label,value,group,stamp)));
-  await database.batch(defaultCoverageAreas.map(area=>database.prepare("INSERT OR IGNORE INTO coverage_areas (code,name,name_ar,x,y,status,updated_at) VALUES (?,?,?,?,?,?,?)").bind(area.code,area.name,area.nameAr,area.x,area.y,area.status||"active",stamp)));
+  const coverageSeedKey = "coverage-catalog-2026-10-02-v2";
+  const coverageSeedApplied = await database.prepare("SELECT seed_key FROM portal_seed_versions WHERE seed_key=?").bind(coverageSeedKey).first();
+  if (!coverageSeedApplied) {
+    const areaCodes = defaultCoverageAreas.map((area) => area.code);
+    const placeholders = areaCodes.map(() => "?").join(",");
+    await database.batch([
+      ...defaultCoverageAreas.map((area) => database.prepare(`INSERT INTO coverage_areas
+        (code,name,name_ar,x,y,status,updated_at) VALUES (?,?,?,?,?,?,?)
+        ON CONFLICT(code) DO UPDATE SET name=excluded.name,name_ar=excluded.name_ar,x=excluded.x,y=excluded.y,status=excluded.status,updated_at=excluded.updated_at`)
+        .bind(area.code,area.name,area.nameAr,area.x,area.y,area.status||"active",stamp)),
+      database.prepare(`DELETE FROM coverage_area_contacts WHERE code NOT IN (${placeholders})`).bind(...areaCodes),
+      database.prepare(`DELETE FROM coverage_areas WHERE code NOT IN (${placeholders})`).bind(...areaCodes),
+      database.prepare("INSERT INTO portal_seed_versions (seed_key,applied_at) VALUES (?,?)").bind(coverageSeedKey,stamp),
+    ]);
+  }
   const defaultPhones: Record<number,string> = {1:"+972545026965",2:"+972545026965",4:"+972545026965",5:"+972549580852",7:"+972549580852",13:"+972549580852",8:"+972544732050",12:"+972544732050",9:"+972544371004",10:"+972547905048",16:"+972542785813",19:"+972542785813",20:"+972543687217"};
   await database.batch(Object.entries(defaultPhones).map(([code,phone])=>database.prepare("INSERT OR IGNORE INTO coverage_area_contacts (code,phone,updated_at) VALUES (?,?,?)").bind(Number(code),phone,stamp)));
 }

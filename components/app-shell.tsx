@@ -27,6 +27,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
   const [commandOpen, setCommandOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [signingOut, setSigningOut] = useState(false);
+  const [pendingPath, setPendingPath] = useState("");
   const [sessionProfile, setSessionProfile] = useState<(typeof demoEmployees)[number] | null>(null);
   const [accountPermissions, setAccountPermissions] = useState<Record<string, boolean>>({});
   const { theme, toggle } = useTheme();
@@ -140,10 +141,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
   }, [path, router, sessionProfile]);
 
   useEffect(() => {
-    const handle = window.setTimeout(() => {
-      allNav.filter((item) => !isLockedFeature(item.href)).forEach((item) => router.prefetch(item.href));
-    }, 50);
-    return () => window.clearTimeout(handle);
+    allNav.filter((item) => !isLockedFeature(item.href)).forEach((item) => router.prefetch(item.href));
   }, [router, shellAdmin]);
 
   useEffect(() => {
@@ -164,6 +162,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
   const go = (href: string) => {
     setCommandOpen(false);
     setQuery("");
+    setPendingPath(href);
     router.push(href);
   };
 
@@ -195,13 +194,13 @@ export function AppShell({ children, title, admin = false, action }: { children:
             <p className="sidebar-section-label">{group.label}</p>
             <div className="space-y-0.5">
               {group.items.map(({ href, label, icon: Icon }) => {
-                const active = path === href || path.startsWith(href + "/");
+                const active = path === href || path.startsWith(href + "/") || pendingPath === href;
                 if (isLockedFeature(href)) return <div key={href} aria-disabled="true" className="sidebar-link flex cursor-not-allowed items-center gap-3 opacity-50">
                   <span className="sidebar-icon"><Icon size={17} /></span>
                   <span className="min-w-0 flex-1 truncate">{label}</span>
                   <span className="flex items-center gap-1 rounded-full bg-[var(--surface-2)] px-2 py-1 text-[9px] font-bold text-[var(--muted)]"><LockKeyhole size={10} />{ar ? "قيد الإنشاء" : "Coming soon"}</span>
                 </div>;
-                return <Link prefetch key={href} href={href} onClick={() => setOpen(false)} className={cn("sidebar-link group flex items-center gap-3", active && "active")}>
+                return <Link prefetch key={href} href={href} onPointerEnter={() => router.prefetch(href)} onPointerDown={() => router.prefetch(href)} onClick={() => { setPendingPath(href); setOpen(false); }} className={cn("sidebar-link group flex items-center gap-3", active && "active")}>
                   <span className="sidebar-icon"><Icon size={17} /></span>
                   <span className="min-w-0 flex-1 truncate">{label}</span>
                   {href === "/notifications" && <span className="sidebar-badge">{demoNotifications.filter((notification) => !notification.is_read).length}</span>}
@@ -236,7 +235,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
       <nav className="mobile-dock fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 px-1 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 lg:hidden">
         {mobileNav.map(({ href, label, icon: Icon }) => isLockedFeature(href)
           ? <div key={href} aria-disabled="true" className="flex cursor-not-allowed flex-col items-center gap-1 text-[9px] text-[var(--muted)] opacity-45"><span className="relative"><Icon size={19} /><LockKeyhole className="absolute -bottom-1 -right-2 rounded-full bg-[var(--surface)] p-0.5" size={11} /></span>{label}</div>
-          : <Link prefetch key={href} href={href} className={cn("flex flex-col items-center gap-1 text-[9px] text-[var(--muted)]", (path === href || path.startsWith(href + "/")) && "font-bold text-[var(--primary)]")}><Icon size={19} />{label}</Link>)}
+          : <Link prefetch key={href} href={href} onPointerEnter={() => router.prefetch(href)} onPointerDown={() => router.prefetch(href)} onClick={() => setPendingPath(href)} className={cn("flex flex-col items-center gap-1 text-[9px] text-[var(--muted)]", (path === href || path.startsWith(href + "/") || pendingPath === href) && "font-bold text-[var(--primary)]")}><Icon size={19} />{label}</Link>)}
       </nav>
 
       {commandOpen && <div className="command-backdrop" onMouseDown={() => setCommandOpen(false)}><section className="command-panel" onMouseDown={(event) => event.stopPropagation()} role="dialog" aria-modal="true" aria-label={ar ? "بحث سريع" : "Quick search"}>
