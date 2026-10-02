@@ -36,7 +36,9 @@ export function AppShell({ children, title, admin = false, action }: { children:
   const ar = locale === "ar";
   const roleLabel = departmentHeadEmails.has(activeProfile.email.toLowerCase())
     ? (ar ? "مسؤول قسم" : "Department head")
-    : ({ employee: ar ? "موظف" : "Employee", supervisor: ar ? "مشرف" : "Supervisor", manager: ar ? "مدير" : "Manager", admin: ar ? "مسؤول نظام" : "Administrator" } as const)[activeProfile.role];
+    : activeProfile.department_id === "quality-assurance"
+      ? (ar ? "جودة" : "Quality")
+      : ({ employee: ar ? "موظف" : "Employee", supervisor: ar ? "مسؤول شفتات" : "Shift manager", manager: ar ? "مدير" : "Manager", admin: ar ? "مدير" : "Manager" } as const)[activeProfile.role];
   const roleAdmin = sessionProfile ? ["manager", "admin"].includes(sessionProfile.role) : admin;
   const shellAdmin = admin || roleAdmin;
   const showCelebrationStrip = path === "/community" || path === "/messages";
@@ -116,7 +118,11 @@ export function AppShell({ children, title, admin = false, action }: { children:
       .then((response) => response.ok ? response.json() : { permissions: {} })
       .then((data) => setAccountPermissions(data.permissions || {}))
       .catch(() => setAccountPermissions({}));
-    const privileged = ["manager", "admin"].includes(current.role);
+  }, []);
+
+  useEffect(() => {
+    if (isSupabaseConfigured || !sessionProfile) return;
+    const privileged = ["manager", "admin"].includes(sessionProfile.role);
     const sharedRolePages = [
       "/profile",
       "/guidelines",
@@ -131,7 +137,14 @@ export function AppShell({ children, title, admin = false, action }: { children:
     ];
     if (privileged && !path.startsWith("/admin") && !sharedRolePages.some((page) => path === page || path.startsWith(`${page}/`))) router.replace("/admin");
     if (!privileged && path.startsWith("/admin")) router.replace("/dashboard");
-  }, [path, router]);
+  }, [path, router, sessionProfile]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      allNav.filter((item) => !isLockedFeature(item.href)).forEach((item) => router.prefetch(item.href));
+    }, 50);
+    return () => window.clearTimeout(handle);
+  }, [router, shellAdmin]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -229,7 +242,7 @@ export function AppShell({ children, title, admin = false, action }: { children:
       {commandOpen && <div className="command-backdrop" onMouseDown={() => setCommandOpen(false)}><section className="command-panel" onMouseDown={(event) => event.stopPropagation()} role="dialog" aria-modal="true" aria-label={ar ? "بحث سريع" : "Quick search"}>
         <header><Search size={20} /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder={ar ? "اكتب اسم صفحة أو مهمة..." : "Type a page or task..."} /><button onClick={() => setCommandOpen(false)} aria-label={ar ? "إغلاق" : "Close"}><X size={18} /></button></header>
         <div className="command-results"><span>{ar ? "انتقال سريع" : "Quick jump"}</span>{filteredNav.map(({ href, label, icon: Icon }) => isLockedFeature(href)
-          ? <button key={href} disabled className="cursor-not-allowed opacity-50"><i><Icon size={18} /></i><b>{label}</b><small>{ar ? "قيد الإنشاء" : "Coming soon"}</small><LockKeyhole size={15} /></button>
+          ? <button key={href} type="button" disabled onClick={() => setCommandOpen(false)} className="cursor-not-allowed opacity-50"><i><Icon size={18} /></i><b>{label}</b><small>{ar ? "قيد الإنشاء" : "Coming soon"}</small><LockKeyhole size={15} /></button>
           : <button key={href} onClick={() => go(href)}><i><Icon size={18} /></i><b>{label}</b><small>{href}</small><ChevronLeft size={16} /></button>)}{filteredNav.length === 0 && <p>{ar ? "لا توجد نتيجة مطابقة" : "No matching result"}</p>}</div>
         <footer><span><kbd>Esc</kbd> {ar ? "إغلاق" : "Close"}</span><span><kbd>↵</kbd> {ar ? "فتح" : "Open"}</span></footer>
       </section></div>}

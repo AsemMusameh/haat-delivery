@@ -214,3 +214,13 @@ html[data-palette="amber"]{--primary:#d97706;--primary-2:#b45309;--primary-soft:
 html.dark[data-palette="amber"]{--primary:#fbbf24;--primary-2:#fcd34d;--primary-soft:#451a03}
 html[data-palette="indigo"]{--primary:#4338ca;--primary-2:#3730a3;--primary-soft:#eef2ff}
 html.dark[data-palette="indigo"]{--primary:#818cf8;--primary-2:#a5b4fc;--primary-soft:#1e1b4b}
+
+/* Keep the complete workspace chrome in sync with the selected color template. */
+.sidebar:before{background:linear-gradient(90deg,var(--primary-2),var(--primary) 64%,color-mix(in srgb,var(--primary) 24%,#ffd52a))}
+.sidebar-icon{background:var(--primary-soft);color:var(--primary)}
+.sidebar-link:hover{border-color:color-mix(in srgb,var(--primary) 22%,var(--line));color:var(--primary)}
+.sidebar-link.active{border-color:color-mix(in srgb,var(--primary) 28%,var(--line));background:linear-gradient(100deg,var(--surface) 0%,var(--primary-soft) 100%);color:var(--primary);box-shadow:0 10px 24px color-mix(in srgb,var(--primary) 12%,transparent)}
+.sidebar-link.active:before{background:linear-gradient(var(--primary),var(--primary-2));box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 14%,transparent)}
+.sidebar-link.active .sidebar-icon,.sidebar-avatar{background:linear-gradient(145deg,var(--primary),var(--primary-2));box-shadow:0 7px 16px color-mix(in srgb,var(--primary) 24%,transparent)}
+.sidebar-chevron{color:var(--primary)}
+.sidebar-logout:hover{background:var(--primary-soft);color:var(--primary)}

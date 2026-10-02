@@ -15,28 +15,34 @@ export const colorPalettes: { id: PaletteId; name: string; primary: string; seco
 
 const ThemeContext = createContext({ theme: "light" as Theme, toggle: () => {}, palette: "haat" as PaletteId, setPalette: (_palette: PaletteId) => {} });
 
+const storedTheme = (): Theme => {
+  if (typeof window === "undefined") return "light";
+  const saved = window.localStorage.getItem("theme");
+  if (saved === "light" || saved === "dark") return saved;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+};
+
+const storedPalette = (): PaletteId => {
+  if (typeof window === "undefined") return "haat";
+  const saved = window.localStorage.getItem("haat-palette") as PaletteId | null;
+  return saved && colorPalettes.some((item) => item.id === saved) ? saved : "haat";
+};
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
-  const [palette, setPaletteState] = useState<PaletteId>("haat");
+  const [theme, setTheme] = useState<Theme>(storedTheme);
+  const [palette, setPaletteState] = useState<PaletteId>(storedPalette);
   useEffect(() => {
-    const savedTheme = (localStorage.getItem("theme") as Theme) || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-    const savedPalette = (localStorage.getItem("haat-palette") as PaletteId) || "haat";
-    const validPalette = colorPalettes.some((item) => item.id === savedPalette) ? savedPalette : "haat";
-    setTheme(savedTheme);
-    setPaletteState(validPalette);
-    document.documentElement.classList.toggle("dark", savedTheme === "dark");
-    document.documentElement.dataset.palette = validPalette;
-  }, []);
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    document.documentElement.dataset.palette = palette;
+    window.localStorage.setItem("theme", theme);
+    window.localStorage.setItem("haat-palette", palette);
+  }, [theme, palette]);
   const toggle = () => setTheme((current) => {
     const next = current === "dark" ? "light" : "dark";
-    localStorage.setItem("theme", next);
-    document.documentElement.classList.toggle("dark", next === "dark");
     return next;
   });
   const setPalette = (next: PaletteId) => {
     setPaletteState(next);
-    localStorage.setItem("haat-palette", next);
-    document.documentElement.dataset.palette = next;
   };
   return <ThemeContext.Provider value={{ theme, toggle, palette, setPalette }}>{children}</ThemeContext.Provider>;
 }

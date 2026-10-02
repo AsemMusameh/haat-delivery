@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sessionUser } from "@/lib/account-store";
-import { demoEmployees } from "@/lib/demo-data";
+import { demoEmployees, departmentHeadEmails } from "@/lib/demo-data";
 import { createDailyReport, createMonthlyReport, deleteReport, listDailyReports, listMonthlyReports, reportOwner } from "@/lib/report-store";
 import type { ReportCategory } from "@/lib/report-store";
 
@@ -15,6 +15,15 @@ async function actor(request: NextRequest) {
 }
 
 const clean = (value: unknown, max: number) => String(value || "").trim().slice(0, max);
+const categoryForDepartment = (departmentId: string): ReportCategory => {
+  if (["voice-center", "shift-managers-voice"].includes(departmentId)) return "voice";
+  if (departmentId === "connect-teams-updates") return "connecteam";
+  return "chat";
+};
+const reportScope = (profile: (typeof demoEmployees)[number]): ReportCategory | null => {
+  if (["manager", "admin"].includes(profile.role) || departmentHeadEmails.has(profile.email.toLowerCase()) || profile.department_id === "quality-assurance") return null;
+  return categoryForDepartment(profile.department_id);
+};
 const fail = (error: unknown) => {
   const message = error instanceof Error ? error.message : "UNKNOWN_ERROR";
   if (message === "UNAUTHORIZED") return response({ error: "انتهت الجلسة، سجّل الدخول من جديد" }, 401);
@@ -24,10 +33,11 @@ const fail = (error: unknown) => {
 
 export async function GET(request: NextRequest) {
   try {
-    await actor(request);
+    const profile = await actor(request);
     const type = request.nextUrl.searchParams.get("type");
-    if (type === "daily") return response({ reports: await listDailyReports() });
-    if (type === "monthly") return response({ reports: await listMonthlyReports() });
+    const scope = reportScope(profile);
+    if (type === "daily") { const reports = await listDailyReports(); return response({ reports: scope ? reports.filter((item) => item.reportType === scope) : reports, scope }); }
+    if (type === "monthly") { const reports = await listMonthlyReports(); return response({ reports: scope ? reports.filter((item) => item.reportType === scope) : reports, scope }); }
     return response({ error: "نوع التقرير غير صالح" }, 422);
   } catch (error) { return fail(error); }
 }
@@ -45,6 +55,8 @@ export async function POST(request: NextRequest) {
       const title = clean(body.title, 120);
       const summary = clean(body.summary, 4000);
       if (!/^\d{4}-\d{2}-\d{2}$/.test(reportDate) || !["voice","connecteam","chat"].includes(reportType) || !shift || !title || !summary) return response({ error: "أكمل الحقول المطلوبة" }, 422);
+      const scope = reportScope(profile);
+      if (scope && reportType !== scope) throw new Error("FORBIDDEN");
       const report = await createDailyReport({
         authorId: profile.id, authorName: profile.full_name, department: profile.department?.name || "HAAT",
         reportDate, reportType, shift, title, summary, achievements: clean(body.achievements, 2500),
@@ -55,13 +67,14 @@ export async function POST(request: NextRequest) {
     if (type === "monthly") {
       if (!['manager', 'admin'].includes(profile.role)) throw new Error("FORBIDDEN");
       const reportMonth = clean(body.reportMonth, 7);
+      const reportType = clean(body.reportType, 20) as ReportCategory;
       const title = clean(body.title, 120);
       const imageData = clean(body.imageData, 1_500_000);
       const imageName = clean(body.imageName, 160);
-      if (!/^\d{4}-\d{2}$/.test(reportMonth) || !title || !/^data:image\/(?:png|jpeg|webp);base64,/.test(imageData)) return response({ error: "أكمل الشهر والعنوان والصورة" }, 422);
+      if (!/^\d{4}-\d{2}$/.test(reportMonth) || !["voice","connecteam","chat"].includes(reportType) || !title || !/^data:image\/(?:png|jpeg|webp);base64,/.test(imageData)) return response({ error: "أكمل القسم والشهر والعنوان والصورة" }, 422);
       if (imageData.length > 1_450_000) return response({ error: "الصورة كبيرة جداً، اختر صورة أصغر" }, 413);
       const report = await createMonthlyReport({
-        authorId: profile.id, authorName: profile.full_name, reportMonth, title,
+        authorId: profile.id, authorName: profile.full_name, reportType, reportMonth, title,
         note: clean(body.note, 2500), imageData, imageName: imageName || "monthly-report.webp",
       });
       return response({ report }, 201);

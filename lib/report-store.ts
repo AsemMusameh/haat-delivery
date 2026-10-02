@@ -20,6 +20,7 @@ export type MonthlyReport = {
   id: string;
   authorId: string;
   authorName: string;
+  reportType: ReportCategory;
   reportMonth: string;
   title: string;
   note: string;
@@ -36,6 +37,7 @@ type DailyRow = {
 type MonthlyRow = {
   id: string; author_id: string; author_name: string; report_month: string; title: string;
   note: string; image_data: string; image_name: string; created_at: string;
+  report_type?: ReportCategory | null;
 };
 
 const database = () => {
@@ -59,6 +61,9 @@ export async function ensureReportStore() {
       id TEXT PRIMARY KEY,author_id TEXT NOT NULL,author_name TEXT NOT NULL,report_month TEXT NOT NULL,
       title TEXT NOT NULL,note TEXT NOT NULL DEFAULT '',image_data TEXT NOT NULL,image_name TEXT NOT NULL,created_at TEXT NOT NULL)`),
     db.prepare("CREATE INDEX IF NOT EXISTS portal_monthly_reports_month_idx ON portal_monthly_reports (report_month DESC, created_at DESC)"),
+    db.prepare(`CREATE TABLE IF NOT EXISTS portal_monthly_report_types (
+      report_id TEXT PRIMARY KEY,report_type TEXT NOT NULL DEFAULT 'chat')`),
+    db.prepare("CREATE INDEX IF NOT EXISTS portal_monthly_report_types_type_idx ON portal_monthly_report_types (report_type,report_id)"),
   ]);
 }
 
@@ -70,6 +75,7 @@ const mapDaily = (row: DailyRow): DailyReport => ({
 });
 const mapMonthly = (row: MonthlyRow): MonthlyReport => ({
   id: row.id, authorId: row.author_id, authorName: row.author_name, reportMonth: row.report_month,
+  reportType: row.report_type || "chat",
   title: row.title, note: row.note, imageData: row.image_data, imageName: row.image_name, createdAt: row.created_at,
 });
 
@@ -100,7 +106,9 @@ export async function createDailyReport(input: Omit<DailyReport, "id" | "created
 
 export async function listMonthlyReports() {
   await ensureReportStore();
-  const result = await database().prepare("SELECT * FROM portal_monthly_reports ORDER BY report_month DESC, created_at DESC LIMIT 60").all<MonthlyRow>();
+  const result = await database().prepare(`SELECT r.*,COALESCE(t.report_type,'chat') report_type
+    FROM portal_monthly_reports r LEFT JOIN portal_monthly_report_types t ON t.report_id=r.id
+    ORDER BY r.report_month DESC,r.created_at DESC LIMIT 180`).all<MonthlyRow>();
   return (result.results || []).map(mapMonthly);
 }
 
@@ -108,11 +116,15 @@ export async function createMonthlyReport(input: Omit<MonthlyReport, "id" | "cre
   await ensureReportStore();
   const id = crypto.randomUUID();
   const createdAt = new Date().toISOString();
-  await database().prepare(`INSERT INTO portal_monthly_reports
-    (id,author_id,author_name,report_month,title,note,image_data,image_name,created_at)
-    VALUES (?,?,?,?,?,?,?,?,?)`).bind(
-      id,input.authorId,input.authorName,input.reportMonth,input.title,input.note,input.imageData,input.imageName,createdAt,
-    ).run();
+  const db = database();
+  await db.batch([
+    db.prepare(`INSERT INTO portal_monthly_reports
+      (id,author_id,author_name,report_month,title,note,image_data,image_name,created_at)
+      VALUES (?,?,?,?,?,?,?,?,?)`).bind(
+        id,input.authorId,input.authorName,input.reportMonth,input.title,input.note,input.imageData,input.imageName,createdAt,
+      ),
+    db.prepare("INSERT INTO portal_monthly_report_types (report_id,report_type) VALUES (?,?)").bind(id,input.reportType),
+  ]);
   return { ...input, id, createdAt };
 }
 
@@ -129,5 +141,8 @@ export async function deleteReport(type: "daily" | "monthly", id: string) {
     database().prepare("DELETE FROM portal_daily_report_types WHERE report_id=?").bind(id),
     database().prepare(`DELETE FROM ${table} WHERE id=?`).bind(id),
   ]);
-  else await database().prepare(`DELETE FROM ${table} WHERE id=?`).bind(id).run();
+  else await database().batch([
+    database().prepare("DELETE FROM portal_monthly_report_types WHERE report_id=?").bind(id),
+    database().prepare(`DELETE FROM ${table} WHERE id=?`).bind(id),
+  ]);
 }
