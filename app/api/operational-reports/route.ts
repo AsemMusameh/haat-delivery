@@ -52,15 +52,16 @@ export async function POST(request: NextRequest) {
       const reportDate = clean(body.reportDate, 10);
       const reportType = clean(body.reportType, 20) as ReportCategory;
       const shift = clean(body.shift, 30);
-      const title = clean(body.title, 120);
-      const summary = clean(body.summary, 4000);
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(reportDate) || !["voice","connecteam","chat"].includes(reportType) || !shift || !title || !summary) return response({ error: "أكمل الحقول المطلوبة" }, 422);
+      const imageData = clean(body.imageData, 1_500_000);
+      const imageName = clean(body.imageName, 160);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(reportDate) || !["voice","connecteam","chat"].includes(reportType) || !shift || !/^data:image\/(?:png|jpeg|webp);base64,/.test(imageData)) return response({ error: "اختر القسم والتاريخ والوردية وأرفق صورة التقرير" }, 422);
+      if (imageData.length > 1_450_000) return response({ error: "الصورة كبيرة جداً، اختر صورة أصغر" }, 413);
       const scope = reportScope(profile);
       if (scope && reportType !== scope) throw new Error("FORBIDDEN");
       const report = await createDailyReport({
         authorId: profile.id, authorName: profile.full_name, department: profile.department?.name || "HAAT",
-        reportDate, reportType, shift, title, summary, achievements: clean(body.achievements, 2500),
-        challenges: clean(body.challenges, 2500), notes: clean(body.notes, 2500),
+        reportDate, reportType, shift, title: `تقرير يومي - ${reportDate}`, summary: "",
+        achievements: "", challenges: "", notes: "", imageData, imageName: imageName || "daily-report.webp",
       });
       return response({ report }, 201);
     }
@@ -68,14 +69,13 @@ export async function POST(request: NextRequest) {
       if (!['manager', 'admin'].includes(profile.role)) throw new Error("FORBIDDEN");
       const reportMonth = clean(body.reportMonth, 7);
       const reportType = clean(body.reportType, 20) as ReportCategory;
-      const title = clean(body.title, 120);
       const imageData = clean(body.imageData, 1_500_000);
       const imageName = clean(body.imageName, 160);
-      if (!/^\d{4}-\d{2}$/.test(reportMonth) || !["voice","connecteam","chat"].includes(reportType) || !title || !/^data:image\/(?:png|jpeg|webp);base64,/.test(imageData)) return response({ error: "أكمل القسم والشهر والعنوان والصورة" }, 422);
+      if (!/^\d{4}-\d{2}$/.test(reportMonth) || !["voice","connecteam","chat"].includes(reportType) || !/^data:image\/(?:png|jpeg|webp);base64,/.test(imageData)) return response({ error: "اختر القسم والشهر وأرفق صورة التقرير" }, 422);
       if (imageData.length > 1_450_000) return response({ error: "الصورة كبيرة جداً، اختر صورة أصغر" }, 413);
       const report = await createMonthlyReport({
-        authorId: profile.id, authorName: profile.full_name, reportType, reportMonth, title,
-        note: clean(body.note, 2500), imageData, imageName: imageName || "monthly-report.webp",
+        authorId: profile.id, authorName: profile.full_name, reportType, reportMonth, title: `تقرير شهري - ${reportMonth}`,
+        note: "", imageData, imageName: imageName || "monthly-report.webp",
       });
       return response({ report }, 201);
     }

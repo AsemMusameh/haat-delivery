@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
-import { CheckCircle2, CircleAlert, Layers3, LocateFixed, MapPinned, MapPin, MousePointer2, Navigation, Search, ShieldCheck, XCircle } from "lucide-react";
+import { CheckCircle2, CircleAlert, Layers3, LoaderCircle, LocateFixed, MapPinned, MapPin, MousePointer2, Navigation, Search, ShieldCheck, XCircle } from "lucide-react";
 
 type Place = {
   name: string;
@@ -76,6 +76,7 @@ export function DeliveryCoverageChecker() {
   const [mapMode, setMapMode] = useState<"google" | "coverage">("google");
   const [googleQuery, setGoogleQuery] = useState("Tulkarm, Palestine");
   const [googleOnlySearch, setGoogleOnlySearch] = useState("");
+  const [searching, setSearching] = useState(false);
   const [mapReady, setMapReady] = useState(false);
   const mapElement = useRef<HTMLDivElement>(null);
   const map = useRef<LeafletMap | null>(null);
@@ -94,15 +95,30 @@ export function DeliveryCoverageChecker() {
     setGoogleOnlySearch("");
   };
 
-  const searchMaps = () => {
+  const searchMaps = async () => {
     const value = query.trim();
     if (!value) return;
     if (matches[0]) {
       choose(matches[0]);
     } else {
-      setSelected(null);
-      setGoogleOnlySearch(value);
-      setGoogleQuery(value);
+      setSearching(true);
+      setGoogleOnlySearch("");
+      try {
+        const response = await fetch(`/api/geocode?q=${encodeURIComponent(value)}`);
+        const data = await response.json() as { lat?: number; lng?: number; displayName?: string; error?: string };
+        if (!response.ok || typeof data.lat !== "number" || typeof data.lng !== "number") throw new Error(data.error || "تعذر تحديد الموقع");
+        const point = toMapPoint(data.lat, data.lng);
+        const covered = isCoveredPoint(point);
+        const coordinates = `${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}`;
+        setSelected({ name: value, english: data.displayName || coordinates, x: point[0], y: point[1], covered, note: covered ? "العنوان المحدد داخل حدود توصيل HAAT" : "العنوان المحدد خارج حدود التوصيل المعتمدة حاليًا" });
+        setGoogleQuery(coordinates);
+      } catch (error) {
+        setSelected(null);
+        setGoogleOnlySearch(error instanceof Error ? error.message : "تعذر تحديد الموقع");
+        setGoogleQuery(value);
+      } finally {
+        setSearching(false);
+      }
     }
     setMapMode("google");
   };
@@ -153,16 +169,16 @@ export function DeliveryCoverageChecker() {
           </div>
           <div className="flex flex-wrap gap-2"><button type="button" onClick={locateMe} className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-2 text-[9px] font-black text-[#a7092c] shadow-lg"><LocateFixed size={14}/>استخدم موقعي</button><span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-2 text-[9px] font-bold"><ShieldCheck size={14}/>مخصص لموظفي HAAT</span></div>
         </div>
-        <form className="relative mt-5 flex gap-2" onSubmit={(event)=>{event.preventDefault();searchMaps()}}>
+        <form className="relative mt-5 flex gap-2" onSubmit={(event)=>{event.preventDefault();void searchMaps()}}>
           <div className="relative min-w-0 flex-1">
           <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={19}/>
-          <input value={query} onChange={(event) => { setQuery(event.target.value); setSelected(null); setGoogleOnlySearch(""); }} className="h-14 w-full rounded-2xl border-0 bg-white pr-12 pl-4 text-sm font-bold text-slate-900 shadow-xl outline-none ring-0 placeholder:font-normal placeholder:text-slate-400" placeholder="اكتب اسم المنطقة أو العنوان مثل Google Maps..." aria-label="ابحث عن موقع التوصيل" autoComplete="off"/>
+          <input value={query} onChange={(event) => { setQuery(event.target.value); setSelected(null); setGoogleOnlySearch(""); }} className="h-14 w-full rounded-2xl border-0 bg-white pr-12 pl-4 text-sm font-bold text-slate-900 shadow-xl outline-none ring-0 placeholder:font-normal placeholder:text-slate-400" placeholder="اكتب اسم المنطقة أو العنوان الكامل..." aria-label="ابحث عن موقع التوصيل" autoComplete="off"/>
           {query && !selected && <div className="absolute inset-x-0 top-[60px] z-30 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 text-slate-900 shadow-2xl">
             {matches.length ? matches.map((place) => <button type="button" key={place.name} onClick={() => choose(place)} className="flex w-full items-center gap-3 rounded-xl p-3 text-start hover:bg-rose-50"><MapPin size={17} className="text-[var(--primary)]"/><span className="flex-1"><b className="block text-xs">{place.name}</b><small dir="ltr" className="mt-0.5 block text-start text-[9px] text-slate-500">{place.english}</small></span><span className={`rounded-full px-2 py-1 text-[8px] font-bold ${place.covered ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>{place.covered ? "يوجد توصيل" : "لا يوجد"}</span></button>) : <div className="p-4 text-center text-xs text-slate-500"><CircleAlert className="mx-auto mb-2" size={20}/>الموقع غير موجود ضمن مناطق التشغيل</div>}
-            <button type="submit" className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 p-3 text-[10px] font-black text-white"><MapPinned size={16}/>عرض “{query}” داخل Google Maps</button>
+            <button type="submit" disabled={searching} className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 p-3 text-[10px] font-black text-white disabled:opacity-60">{searching?<LoaderCircle className="animate-spin" size={16}/>:<MapPinned size={16}/>}فحص “{query}” وإظهار نتيجة التوصيل</button>
           </div>}
           </div>
-          <button type="submit" className="inline-flex h-14 shrink-0 items-center gap-2 rounded-2xl bg-[#17151a] px-5 text-[10px] font-black text-white shadow-xl transition hover:-translate-y-0.5 hover:bg-black"><Search size={17}/>بحث</button>
+          <button type="submit" disabled={searching} className="inline-flex h-14 shrink-0 items-center gap-2 rounded-2xl bg-[#17151a] px-5 text-[10px] font-black text-white shadow-xl transition hover:-translate-y-0.5 hover:bg-black disabled:opacity-60">{searching?<LoaderCircle className="animate-spin" size={17}/>:<Search size={17}/>}فحص</button>
         </form>
         <div className="mt-3 flex flex-wrap items-center gap-2 text-[9px]"><span className="text-rose-100">جرّب سريعًا:</span>{["شويكة", "ذنابة", "رامين", "أفني حيفتس"].map((name) => { const place = places.find((item) => item.name === name)!; return <button type="button" key={name} onClick={() => choose(place)} className="rounded-full bg-white/15 px-3 py-1.5 font-bold hover:bg-white/25">{name}</button>; })}</div>
       </header>
@@ -182,7 +198,7 @@ export function DeliveryCoverageChecker() {
           {mapMode==="google"&&<iframe key={googleQuery} title={`Google Maps - ${googleQuery}`} src={`https://www.google.com/maps?q=${encodeURIComponent(googleQuery)}&output=embed`} className="absolute inset-0 size-full border-0" loading="lazy" allowFullScreen referrerPolicy="no-referrer-when-downgrade"/>}
         </div>
         <aside className="flex min-h-[420px] flex-col justify-center p-6 sm:p-8">
-          {!selected ? <div className="text-center"><i className="mx-auto grid size-16 place-items-center rounded-[22px] bg-[var(--primary-soft)] text-[var(--primary)]">{googleOnlySearch?<MapPinned size={27}/>:<Search size={27}/>}</i><h3 className="mt-5 text-lg font-black">{googleOnlySearch?"الموقع ظاهر على خرائط Google":"ابحث عن البلدة أولاً"}</h3><p className="mx-auto mt-2 max-w-sm text-xs leading-6 text-[var(--muted)]">{googleOnlySearch?"هذه النتيجة ليست ضمن قائمة نطاق HAAT المسجلة. افتح تبويب «نطاق HAAT» أو اختر منطقة من الاقتراحات للحصول على قرار التوصيل المعتمد.":"سنُظهر العنوان داخل Google Maps ونخبرك فورًا إن كان ضمن منطقة التوصيل المعتمدة."}</p></div> : <div>
+          {!selected ? <div className="text-center"><i className="mx-auto grid size-16 place-items-center rounded-[22px] bg-[var(--primary-soft)] text-[var(--primary)]">{searching?<LoaderCircle className="animate-spin" size={27}/>:googleOnlySearch?<CircleAlert size={27}/>:<Search size={27}/>}</i><h3 className="mt-5 text-lg font-black">{searching?"جارٍ فحص الموقع...":googleOnlySearch?"تعذر إكمال الفحص":"ابحث عن البلدة أولاً"}</h3><p className="mx-auto mt-2 max-w-sm text-xs leading-6 text-[var(--muted)]">{googleOnlySearch || "سنحدد العنوان ثم نظهر بوضوح إن كان داخل منطقة التوصيل أم خارجها."}</p></div> : <div>
             <div className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-[10px] font-black ${selected.covered ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>{selected.covered ? <CheckCircle2 size={16}/> : <XCircle size={16}/>}نتيجة البحث</div>
             <h3 className="mt-5 text-2xl font-black">{selected.name}</h3><p dir="ltr" className="mt-1 text-start text-xs text-[var(--muted)]">{selected.english}</p>
             <div className={`mt-6 rounded-[24px] border p-5 ${selected.covered ? "border-emerald-200 bg-emerald-50" : "border-red-200 bg-red-50"}`}><strong className={`flex items-center gap-2 text-xl ${selected.covered ? "text-emerald-800" : "text-red-800"}`}>{selected.covered ? <CheckCircle2/> : <XCircle/>}{selected.covered ? "نعم، يوجد توصيل" : "لا يوجد توصيل حاليًا"}</strong><p className={`mt-2 text-xs leading-6 ${selected.covered ? "text-emerald-700" : "text-red-700"}`}>{selected.note}</p></div>
